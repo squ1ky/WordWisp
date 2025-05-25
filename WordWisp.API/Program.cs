@@ -16,7 +16,20 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 
+// Email Config
+
+builder.Configuration["Email:Host"] = Environment.GetEnvironmentVariable("EMAIL_HOST");
+builder.Configuration["Email:Port"] = Environment.GetEnvironmentVariable("EMAIL_PORT");
+builder.Configuration["Email:Username"] = Environment.GetEnvironmentVariable("EMAIL_USERNAME");
+builder.Configuration["Email:Password"] = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+builder.Configuration["Email:From"] = Environment.GetEnvironmentVariable("EMAIL_FROM");
+
+// Db Config
+
 builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+
+// JWT Config
+
 builder.Configuration["Jwt:Key"] = jwtKey;
 
 builder.Services.AddControllers();
@@ -40,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Auth
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, YandexEmailService>();
 
 // Db
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

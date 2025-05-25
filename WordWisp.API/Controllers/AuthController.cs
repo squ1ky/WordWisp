@@ -21,7 +21,11 @@ namespace WordWisp.API.Controllers
             try
             {
                 var response = await _authService.RegisterAsync(request);
-                return Ok(response);
+                return Ok(new
+                {
+                    message = "Регистрация успешна. Проверьте почту для подтверждения email.",
+                    user = response
+                });
             }
             catch (ArgumentException ex)
             {
@@ -44,6 +48,42 @@ namespace WordWisp.API.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+            }
+        }
+
+        [HttpPost("verify-email")]
+        public async Task<ActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+        {
+            try
+            {
+                await _authService.VerifyEmailAsync(request);
+                return Ok(new { message = "Email успешно подтвержден. Теперь вы можете войти в систему." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+            }
+        }
+
+        [HttpPost("resend-verification")]
+        public async Task<ActionResult> ResendVerification([FromBody] string email)
+        {
+            try
+            {
+                await _authService.ResendVerificationCodeAsync(email);
+                return Ok(new { message = "Код верификации отправлен повторно." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

@@ -35,5 +35,9 @@ namespace WordWisp.API.Models.Entities
         public UserRole Role { get; set; } = UserRole.Student;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public bool IsEmailVerified { get; set; } = false;
+        public string? EmailVerificationCode { get; set; }
+        public DateTime? EmailVerificationCodeExpiry { get; set; }
     }
 }

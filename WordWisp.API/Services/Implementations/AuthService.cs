@@ -13,11 +13,15 @@ namespace WordWisp.API.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository,
+                           IEmailService emailService,
+                           IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _emailService = emailService;
             _configuration = configuration;
         }
 
@@ -29,6 +33,8 @@ namespace WordWisp.API.Services.Implementations
             if (await _userRepository.ExistsByUsernameAsync(request.Username))
                 throw new ArgumentException("Пользователь с таким username уже существует");
 
+            var verificationCode = GenerateVerificationCode();
+                
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             var user = new User
@@ -39,12 +45,15 @@ namespace WordWisp.API.Services.Implementations
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 Role = request.Role,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                IsEmailVerified = false,
+                EmailVerificationCode = verificationCode,
+                EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15)
             };
 
             await _userRepository.CreateAsync(user);
 
-            var token = GenerateJwtToken(user);
+            await _emailService.SendVerificationEmailAsync(user.Email, verificationCode, user.Name);
 
             return new AuthResponse
             {
@@ -54,7 +63,7 @@ namespace WordWisp.API.Services.Implementations
                 Surname = user.Surname,
                 Email = user.Email,
                 Role = user.Role,
-                Token = token
+                Token = null
             };
         }
 
@@ -64,6 +73,9 @@ namespace WordWisp.API.Services.Implementations
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Неверный email или пароль");
+
+            if (!user.IsEmailVerified)
+                throw new UnauthorizedAccessException("Email не подтвержден. Проверьте почту и подтвердите регистрацию.");
 
             var token = GenerateJwtToken(user);
 
@@ -100,6 +112,58 @@ namespace WordWisp.API.Services.Implementations
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        private string GenerateVerificationCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
+
+        public async Task<bool> VerifyEmailAsync(VerifyEmailRequest request)
+        {
+            var user = await _userRepository.GetByEmailAsync(request.Email);
+
+            if (user == null)
+                throw new ArgumentException("Пользователь не найден");
+
+            if (user.IsEmailVerified)
+                throw new ArgumentException("Email уже подтвержден");
+
+            if (user.EmailVerificationCode != request.VerificationCode)
+                throw new ArgumentException("Неверный код верификации");
+
+            if (user.EmailVerificationCodeExpiry < DateTime.UtcNow)
+                throw new ArgumentException("Код верификации истек");
+
+            user.IsEmailVerified = true;
+            user.EmailVerificationCode = null;
+            user.EmailVerificationCodeExpiry = null;
+
+            await _userRepository.UpdateAsync(user);
+
+            return true;
+        }
+
+        public async Task<bool> ResendVerificationCodeAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user == null)
+                throw new ArgumentException("Пользователь не найден");
+
+            if (user.IsEmailVerified)
+                throw new ArgumentException("Email уже подтвержден");
+
+            var verificationCode = GenerateVerificationCode();
+            user.EmailVerificationCode = verificationCode;
+            user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
+
+            await _userRepository.UpdateAsync(user);
+
+            await _emailService.SendVerificationEmailAsync(user.Email, verificationCode, user.Name);
+
+            return true;
         }
     }
 }
