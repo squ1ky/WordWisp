@@ -6,5 +6,7 @@ namespace WordWisp.API.Services.Interfaces
     {
         Task<AuthResponse> RegisterAsync(RegisterRequest request);
         Task<AuthResponse> LoginAsync(LoginRequest request);
+        Task<bool> VerifyEmailAsync(VerifyEmailRequest request);
+        Task<bool> ResendVerificationCodeAsync(string email);
     }
 }

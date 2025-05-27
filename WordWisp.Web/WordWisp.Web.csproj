@@ -6,4 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
+  <ItemGroup>
+    <None Remove="Pages\Auth\" />
+    <None Remove="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\Auth\" />
+    <Folder Include="Models\" />
+    <Folder Include="Models\Auth\" />
+    <Folder Include="Models\DTOs\" />
+    <Folder Include="Models\DTOs\Auth\" />
+  </ItemGroup>
 </Project>

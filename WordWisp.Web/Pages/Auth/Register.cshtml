@@ -1,0 +1,90 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-container">
+    <div class="auth-card register-card">
+        <div class="auth-header">
+            <h2>Регистрация в WordWisp</h2>
+            <p>Создайте аккаунт для изучения английского языка</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="alert alert-info">
+                @Model.Message
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <form method="post" class="auth-form">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Input.Name">Имя</label>
+                    <input asp-for="Input.Name" class="form-control" placeholder="Введите ваше имя" />
+                    <span asp-validation-for="Input.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Surname">Фамилия</label>
+                    <input asp-for="Input.Surname" class="form-control" placeholder="Введите вашу фамилию" />
+                    <span asp-validation-for="Input.Surname" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label asp-for="Input.Username">Имя пользователя</label>
+                <input asp-for="Input.Username" class="form-control" placeholder="Введите имя пользователя" />
+                <span asp-validation-for="Input.Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group full-width">
+                <label asp-for="Input.Email">Email</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="Введите email" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Input.Password">Пароль</label>
+                    <input asp-for="Input.Password" type="password" class="form-control" placeholder="Введите пароль" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword">Подтвердите пароль</label>
+                    <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="Подтвердите пароль" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label asp-for="Input.Role">Роль</label>
+                <select asp-for="Input.Role" class="form-control">
+                    <option value="1">Студент</option>
+                    <option value="2">Преподаватель</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,38 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Главная";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Добро пожаловать в WordWisp</h1>
+        <p class="hero-subtitle">Изучайте английский язык эффективно с персональными словарями и интерактивными тестами</p>
+        <div class="hero-buttons">
+            <a href="/dictionaries" class="btn btn-primary">Мои Словари</a>
+            <a href="/materials" class="btn btn-secondary">Учебные Материалы</a>
+        </div>
+    </div>
 </div>
+
+<section class="features-section">
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Персональные Словари</h3>
+            <p>Создавайте и управляйте своими словарями для эффективного изучения</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📖</div>
+            <h3>Учебные Материалы</h3>
+            <p>Доступ к качественным материалам для изучения английского языка</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Интерактивные Экзамены</h3>
+            <p>Проверяйте свои знания с помощью разнообразных тестов</p>
+        </div>
+    </div>
+</section>

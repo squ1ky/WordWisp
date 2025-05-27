@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WordWisp.API.Models.Entities;
+using WordWisp.API.Extensions;
 
 namespace WordWisp.API.Data
 {
@@ -14,6 +15,14 @@ namespace WordWisp.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("users");
+
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entity.GetProperties())
+                {
+                    property.SetColumnName(property.Name.ToSnakeCase());
+                }
+            }
 
             base.OnModelCreating(modelBuilder);
 
