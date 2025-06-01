@@ -70,6 +70,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, YandexEmailService>();
 
+// Dictionary and Words
+
+builder.Services.AddScoped<IDictionaryRepository, DictionaryRepository>();
+builder.Services.AddScoped<IWordRepository, WordRepository>();
+
+builder.Services.AddScoped<IDictionaryService, DictionaryService>();
+builder.Services.AddScoped<IWordService, WordService>();
+
 // Db
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
