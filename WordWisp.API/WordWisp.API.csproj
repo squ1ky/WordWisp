@@ -42,6 +42,7 @@
     <None Remove="Extensions\" />
     <None Remove="Models\DTOs\Dictionaries\" />
     <None Remove="Models\DTOs\Words\" />
+    <None Remove="Constants\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -59,5 +60,6 @@
     <Folder Include="Extensions\" />
     <Folder Include="Models\DTOs\Dictionaries\" />
     <Folder Include="Models\DTOs\Words\" />
+    <Folder Include="Constants\" />
   </ItemGroup>
 </Project>

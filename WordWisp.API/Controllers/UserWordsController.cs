@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using WordWisp.API.Models.DTOs.Words;
 using WordWisp.API.Services.Interfaces;
+using WordWisp.API.Constants;
 
 namespace WordWisp.API.Controllers
 {
@@ -12,46 +12,46 @@ namespace WordWisp.API.Controllers
     {
         private readonly IWordService _wordService;
         private readonly IDictionaryService _dictionaryService;
+        private readonly IUserContextService _userContext;
 
-        public UserWordsController(IWordService wordService, IDictionaryService dictionaryService)
+        public UserWordsController(IWordService wordService,
+                                   IDictionaryService dictionaryService,
+                                   IUserContextService userContext)
         {
             _wordService = wordService;
             _dictionaryService = dictionaryService;
+            _userContext = userContext;
         }
 
-        private int? GetCurrentUserId()
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<WordDto>> CreateWord(int userId, int dictionaryId, [FromBody] CreateWordRequest request)
         {
-            if (!User.Identity.IsAuthenticated)
-                return null;
+            if (!_userContext.IsOwner(userId))
+                return StatusCode(403, new { message = ErrorMessages.CanAddWordsOnlyToOwnDictionaries });
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(userIdClaim ?? "0");
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        private bool IsOwner(int userId)
-        {
-            var currentUserId = GetCurrentUserId();
-            return currentUserId.HasValue && currentUserId.Value == userId;
+            try
+            {
+                var word = await _wordService.CreateWordAsync(request, dictionaryId, userId);
+                return CreatedAtAction(nameof(GetWord), new { userId, dictionaryId, wordId = word.Id }, word);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, new { message = ErrorMessages.DictionaryAccessDenied });
+            }
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<List<WordDto>>> GetWords(int userId, int dictionaryId, [FromQuery] string? search = null)
         {
-            bool hasAccess;
-
-            if (IsOwner(userId))
-            {
-                hasAccess = await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
-            }
-            else
-            {
-                var dictionary = await _dictionaryService.GetPublicDictionaryByIdAsync(dictionaryId);
-                hasAccess = dictionary != null && await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
-            }
+            var hasAccess = await HasDictionaryAccess(userId, dictionaryId);
 
             if (!hasAccess)
-                return StatusCode(403, new { message = "Нет доступа к словарю" });
+                return StatusCode(403, new { message = ErrorMessages.DictionaryAccessDenied });
 
             List<WordDto> words;
             if (string.IsNullOrWhiteSpace(search))
@@ -66,49 +66,18 @@ namespace WordWisp.API.Controllers
             return Ok(words);
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<WordDto>> CreateWord(int userId, int dictionaryId, [FromBody] CreateWordRequest request)
-        {
-            if (!IsOwner(userId))
-                return StatusCode(403, new { message = "Можно добавлять слова только в свои словари" });
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var word = await _wordService.CreateWordAsync(request, dictionaryId, userId);
-                return CreatedAtAction("GetWord", new { userId, dictionaryId, wordId = word.Id }, word);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Forbid("Нет доступа к словарю");
-            }
-        }
-
         [HttpGet("{wordId}")]
         [AllowAnonymous]
         public async Task<ActionResult<WordDto>> GetWord(int userId, int dictionaryId, int wordId)
         {
-            bool hasAccess;
-
-            if (IsOwner(userId))
-            {
-                hasAccess = await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
-            }
-            else
-            {
-                var dictionary = await _dictionaryService.GetPublicDictionaryByIdAsync(dictionaryId);
-                hasAccess = dictionary != null && await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
-            }
+            var hasAccess = await HasDictionaryAccess(userId, dictionaryId);
 
             if (!hasAccess)
-                return StatusCode(403, new { message = "Нет доступа к словарю" });
+                return StatusCode(403, new { message = ErrorMessages.DictionaryAccessDenied });
 
             var word = await _wordService.GetWordByIdAsync(wordId, userId);
             if (word == null)
-                return StatusCode(404, new { message = "Слово не найдено" });
+                return StatusCode(404, new { message = ErrorMessages.WordNotFound });
 
             return Ok(word);
         }
@@ -117,8 +86,8 @@ namespace WordWisp.API.Controllers
         [Authorize]
         public async Task<ActionResult<WordDto>> UpdateWord(int userId, int dictionaryId, int wordId, [FromBody] UpdateWordRequest request)
         {
-            if (!IsOwner(userId))
-                return StatusCode(403, new { message = "Можно редактировать только свои слова" });
+            if (!_userContext.IsOwner(userId))
+                return StatusCode(403, new { message = ErrorMessages.CanEditOnlyOwnWords });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -126,7 +95,7 @@ namespace WordWisp.API.Controllers
             var word = await _wordService.UpdateWordAsync(wordId, request, userId);
 
             if (word == null)
-                return StatusCode(404, new { message = "Слово не найдено" });
+                return StatusCode(404, new { message = ErrorMessages.WordNotFound });
 
             return Ok(word);
         }
@@ -135,15 +104,28 @@ namespace WordWisp.API.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWord(int userId, int dictionaryId, int wordId)
         {
-            if (!IsOwner(userId))
-                return StatusCode(403, new { message = "Можно удалять только свои слова" });
+            if (!_userContext.IsOwner(userId))
+                return StatusCode(403, new { message = ErrorMessages.CanDeleteOnlyOwnWords });
 
             var result = await _wordService.DeleteWordAsync(wordId, userId);
 
             if (!result)
-                return StatusCode(404, new { message = "Слово не найдено" });
+                return StatusCode(404, new { message = ErrorMessages.WordNotFound });
 
             return NoContent();
+        }
+
+        private async Task<bool> HasDictionaryAccess(int userId, int dictionaryId)
+        {
+            if (_userContext.IsOwner(userId))
+            {
+                return await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
+            }
+            else
+            {
+                var dictionary = await _dictionaryService.GetPublicDictionaryByIdAsync(dictionaryId);
+                return dictionary != null && await _dictionaryService.CheckDictionaryOwnershipAsync(dictionaryId, userId);
+            }
         }
     }
 }
