@@ -22,10 +22,7 @@
     <None Remove="Services\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\Auth\" />
-    <Folder Include="Models\" />
     <Folder Include="Models\Auth\" />
-    <Folder Include="Models\DTOs\" />
     <Folder Include="Models\DTOs\Auth\" />
     <Folder Include="Pages\Dictionaries\" />
     <Folder Include="Models\DTOs\Dictionaries\" />

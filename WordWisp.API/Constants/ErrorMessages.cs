@@ -1,4 +1,7 @@
-﻿namespace WordWisp.API.Constants
+﻿using WordWisp.API.Constants;
+
+namespace WordWisp.API.Constants
+
 {
     public static class ErrorMessages
     {
@@ -20,5 +23,6 @@
         public const string CanEditOnlyOwnWords = "Можно редактировать только свои слова";
         public const string CanDeleteOnlyOwnWords = "Можно удалять только свои слова";
         public const string NoDictionaryAccess = "Нет доступа к словарю";
+
     }
 }
