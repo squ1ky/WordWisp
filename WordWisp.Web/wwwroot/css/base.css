@@ -1,0 +1,119 @@
+﻿body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    background-color: #fafbfc;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3644cc;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.action-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: white;
+    color: #495057;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.action-icon:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.action-icon.edit {
+    color: #495057;
+}
+
+.action-icon.edit:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: rgba(66, 85, 255, 0.1);
+}
+
+.action-icon.delete {
+    color: #495057;
+}
+
+.action-icon.delete:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.action-icon.privacy {
+    color: #495057;
+}
+
+.action-icon.privacy.public {
+    color: var(--success-color);
+    border-color: var(--success-color);
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.action-icon.privacy.private {
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+
+.empty-state h4 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}

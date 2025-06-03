@@ -40,6 +40,9 @@
     <None Remove="Services\Implementations\" />
     <None Remove="Controllers\" />
     <None Remove="Extensions\" />
+    <None Remove="Models\DTOs\Dictionaries\" />
+    <None Remove="Models\DTOs\Words\" />
+    <None Remove="Constants\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -55,5 +58,8 @@
     <Folder Include="Services\Implementations\" />
     <Folder Include="Controllers\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Models\DTOs\Dictionaries\" />
+    <Folder Include="Models\DTOs\Words\" />
+    <Folder Include="Constants\" />
   </ItemGroup>
 </Project>

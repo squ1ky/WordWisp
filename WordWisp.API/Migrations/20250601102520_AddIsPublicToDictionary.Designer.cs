@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordWisp.API.Data;
@@ -11,9 +12,11 @@ using WordWisp.API.Data;
 namespace WordWisp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250601102520_AddIsPublicToDictionary")]
+    partial class AddIsPublicToDictionary
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,7 @@ namespace WordWisp.API.Migrations
                         .HasColumnName("description");
 
                     b.Property<bool>("IsPublic")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false)
                         .HasColumnName("is_public");
 
                     b.Property<string>("Name")
@@ -68,7 +69,7 @@ namespace WordWisp.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("dictionaries", (string)null);
+                    b.ToTable("Dictionaries");
                 });
 
             modelBuilder.Entity("WordWisp.API.Entities.Word", b =>
@@ -109,7 +110,7 @@ namespace WordWisp.API.Migrations
 
                     b.HasIndex("DictionaryId");
 
-                    b.ToTable("words", (string)null);
+                    b.ToTable("Words");
                 });
 
             modelBuilder.Entity("WordWisp.API.Models.Entities.User", b =>

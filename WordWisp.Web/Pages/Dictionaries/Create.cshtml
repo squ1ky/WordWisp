@@ -1,0 +1,65 @@
+﻿@page "/dictionaries/create"
+@model CreateDictionaryModel
+@{
+    ViewData["Title"] = "Создать словарь";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div style="background: white; border-radius: var(--border-radius); box-shadow: var(--shadow-light); border: 1px solid var(--border-color); overflow: hidden;">
+                <div style="background: var(--secondary-color); padding: 24px; border-bottom: 1px solid var(--border-color);">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--text-primary);">
+                        <i class="bi bi-plus-circle"></i> Создать словарь
+                    </h2>
+                </div>
+                <div style="padding: 24px;">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label asp-for="Input.Name" style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-primary);">Название словаря *</label>
+                            <input asp-for="Input.Name" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem;" placeholder="Например: Базовая лексика" />
+                            <span asp-validation-for="Input.Name" class="text-danger"></span>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label asp-for="Input.Description" style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-primary);">Описание</label>
+                            <textarea asp-for="Input.Description" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; resize: vertical;" rows="3" placeholder="Опишите тематику словаря"></textarea>
+                            <span asp-validation-for="Input.Description" class="text-danger"></span>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 12px 0;">
+                                <input asp-for="Input.IsPublic" type="checkbox" />
+                                <label asp-for="Input.IsPublic" style="margin: 0; font-weight: 500; color: var(--text-primary);">
+                                    <i class="bi bi-globe"></i> Сделать словарь публичным
+                                </label>
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Публичные словари могут видеть все пользователи</div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                            <a href="/dictionaries" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Создать словарь
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

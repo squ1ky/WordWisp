@@ -1,0 +1,211 @@
+﻿.words-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Cards */
+
+.word-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.word-card:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+.word-card-content {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    position: relative;
+}
+
+.word-term-section {
+    border-right: 1px solid var(--border-color);
+    padding-right: 20px;
+}
+
+.word-term {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 4px 0;
+}
+
+.word-transcription {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.word-definition-section {
+    padding-left: 20px;
+}
+
+.word-definition {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.word-example {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.word-actions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.word-card:hover .word-actions {
+    opacity: 1;
+}
+
+/* Inline add word */
+
+.add-word-inline {
+    background: white;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.add-word-inline:hover {
+    border-color: var(--primary-color);
+    background: #fafbff;
+}
+
+.add-word-inline.active {
+    border-color: var(--primary-color);
+    border-style: solid;
+    background: white;
+    box-shadow: var(--shadow-light);
+}
+
+.add-word-prompt {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.add-word-form {
+    display: none;
+}
+
+.add-word-form.active {
+    display: block;
+}
+
+.inline-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.inline-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inline-form-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.inline-form-input {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.inline-form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.1);
+}
+
+.inline-form-textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.inline-form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.inline-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inline-btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.inline-btn-primary:hover {
+    background: #3644cc;
+}
+
+.inline-btn-secondary {
+    background: var(--secondary-color);
+    color: var(--text-secondary);
+}
+
+.inline-btn-secondary:hover {
+    background: #e9ecef;
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .word-card-content {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .word-term-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding-right: 0;
+        padding-bottom: 16px;
+    }
+
+    .word-definition-section {
+        padding-left: 0;
+        padding-top: 16px;
+    }
+
+    .inline-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,155 @@
+﻿@page "/dictionaries/{id:int}"
+@model DictionaryDetailsModel
+@{
+    ViewData["Title"] = Model.Dictionary?.Name ?? "Словарь";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dictionaries.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/words.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (Model.Dictionary != null)
+    {
+        <div class="dictionary-header">
+            <div class="dictionary-header-content">
+                <div class="dictionary-info">
+                    <h1>
+                        <i class="bi bi-journal-text"></i> @Model.Dictionary.Name
+                    </h1>
+                    @if (!string.IsNullOrEmpty(Model.Dictionary.Description))
+                    {
+                        <p class="text-muted mb-3">@Model.Dictionary.Description</p>
+                    }
+                    <div class="dictionary-meta">
+                        <span class="meta-badge words-count">@Model.Dictionary.Words.Count слов</span>
+                        <span class="meta-badge">
+                            <i class="bi @(Model.Dictionary.IsPublic ? "bi-globe" : "bi-lock")"></i>
+                            @(Model.Dictionary.IsPublic ? "Публичный" : "Приватный")
+                        </span>
+                        <span class="meta-badge">@Model.Dictionary.CreatedAt.ToString("dd.MM.yyyy")</span>
+                    </div>
+                </div>
+
+                @if (Model.IsOwner)
+                {
+                    <div class="dictionary-actions-header">
+                        <form method="post" asp-page-handler="ToggleVisibility" class="d-inline">
+                            <button type="submit" class="action-icon privacy @(Model.Dictionary.IsPublic ? "public" : "private")"
+                                    title="@(Model.Dictionary.IsPublic ? "Сделать приватным" : "Сделать публичным")"
+                                    onclick="return confirm('@(Model.Dictionary.IsPublic ? "Сделать словарь приватным?" : "Сделать словарь публичным?")')">
+                                <i class="bi @(Model.Dictionary.IsPublic ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                            </button>
+                        </form>
+
+                        <a href="/dictionaries/@Model.Dictionary.Id/edit" class="action-icon edit" title="Редактировать словарь">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+
+                        <form method="post" asp-page-handler="DeleteDictionary" class="d-inline">
+                            <button type="submit" class="action-icon delete" title="Удалить словарь"
+                                    onclick="return confirm('Удалить словарь? Все слова в нем также будут удалены.')">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex gap-2">
+                @if (Model.IsOwner)
+                {
+                    <a href="/dictionaries/@Model.Dictionary.Id/words/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Добавить слово
+                    </a>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">@Model.ErrorMessage</div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">@Model.SuccessMessage</div>
+        }
+
+        @if (Model.Dictionary.Words.Any())
+        {
+            <div class="words-container">
+                @foreach (var word in Model.Dictionary.Words)
+                {
+                    <div class="word-card">
+                        <div class="word-card-content">
+                            <div class="word-term-section">
+                                <h5 class="word-term">@word.Term</h5>
+                                @if (!string.IsNullOrEmpty(word.Transcription))
+                                {
+                                    <p class="word-transcription">@word.Transcription</p>
+                                }
+                            </div>
+
+                            <div class="word-definition-section">
+                                <p class="word-definition">@word.Definition</p>
+                                @if (!string.IsNullOrEmpty(word.Example))
+                                {
+                                    <p class="word-example">
+                                        <i class="bi bi-chat-quote"></i> @word.Example
+                                    </p>
+                                }
+                            </div>
+
+                            @if (Model.IsOwner)
+                            {
+                                <div class="word-actions">
+                                    <a href="/dictionaries/@Model.Dictionary.Id/words/@word.Id/edit"
+                                       class="action-icon edit" title="Редактировать слово">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+
+                                    <form method="post" asp-page-handler="DeleteWord" asp-route-wordId="@word.Id" class="d-inline">
+                                        <button type="submit" class="action-icon delete" title="Удалить слово"
+                                                onclick="return confirm('Удалить слово?')">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-chat-quote"></i>
+                <h4>В словаре пока нет слов</h4>
+                <p>Добавьте первое слово для изучения</p>
+                @if (Model.IsOwner)
+                {
+                    <a href="/dictionaries/@Model.Dictionary.Id/words/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Добавить первое слово
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="mt-4">
+        <a href="/dictionaries" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к словарям
+        </a>
+    </div>
+</div>

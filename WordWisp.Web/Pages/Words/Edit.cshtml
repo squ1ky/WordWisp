@@ -1,0 +1,77 @@
+﻿@page "/dictionaries/{dictionaryId:int}/words/{wordId:int}/edit"
+@model EditWordModel
+@{
+    ViewData["Title"] = "Редактировать слово";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/words.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="bi bi-pencil"></i> Редактировать слово</h2>
+                    @if (!string.IsNullOrEmpty(Model.DictionaryName))
+                    {
+                        <p class="mb-0 text-muted">в словаре "@Model.DictionaryName"</p>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Input.Term" class="form-label">Слово/Фраза *</label>
+                                    <input asp-for="Input.Term" class="form-control" />
+                                    <span asp-validation-for="Input.Term" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Input.Transcription" class="form-label">Транскрипция</label>
+                                    <input asp-for="Input.Transcription" class="form-control" />
+                                    <span asp-validation-for="Input.Transcription" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Definition" class="form-label">Перевод/Определение *</label>
+                            <textarea asp-for="Input.Definition" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Input.Definition" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Example" class="form-label">Пример использования</label>
+                            <textarea asp-for="Input.Example" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Input.Example" class="text-danger"></span>
+                            <div class="form-text">Пример поможет лучше запомнить слово</div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Сохранить изменения
+                            </button>
+                            <a href="/dictionaries/@Model.DictionaryId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
