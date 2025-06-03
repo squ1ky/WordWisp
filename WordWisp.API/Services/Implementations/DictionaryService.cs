@@ -58,6 +58,7 @@ namespace WordWisp.API.Services.Implementations
                 Name = dictionary.Name,
                 Description = dictionary.Description,
                 CreatedAt = dictionary.CreatedAt,
+                IsPublic = dictionary.IsPublic,
                 Words = dictionary.Words.Select(w => new WordDto
                 {
                     Id = w.Id,
@@ -81,6 +82,7 @@ namespace WordWisp.API.Services.Implementations
                 Name = dictionary.Name,
                 Description = dictionary.Description,
                 CreatedAt = dictionary.CreatedAt,
+                IsPublic = dictionary.IsPublic,
                 Words = dictionary.Words.Select(w => new WordDto
                 {
                     Id = w.Id,
@@ -151,6 +153,11 @@ namespace WordWisp.API.Services.Implementations
         public async Task<bool> CheckDictionaryOwnershipAsync(int dictionaryId, int userId)
         {
             return await _dictionaryRepository.ExistsAsync(dictionaryId, userId);
+        }
+
+        public async Task<bool> ToggleVisibilityAsync(int id, int userId)
+        {
+            return await _dictionaryRepository.ToggleVisibilityAsync(id, userId);
         }
     }
 }

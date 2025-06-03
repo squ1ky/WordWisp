@@ -86,5 +86,26 @@ namespace WordWisp.API.Repositories.Implementations
             return await _context.Dictionaries
                 .AnyAsync(d => d.Id == id && d.UserId == userId);
         }
+
+        public async Task<bool> ToggleVisibilityAsync(int id, int userId)
+        {
+            var dictionary = await _context.Dictionaries
+                .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+
+            if (dictionary == null)
+                return false;
+
+            dictionary.IsPublic = !dictionary.IsPublic;
+            dictionary.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Dictionary?> GetByIdAndUserIdForUpdateAsync(int id, int userId)
+        {
+            return await _context.Dictionaries
+                .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+        }
     }
 }

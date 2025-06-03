@@ -1,6 +1,6 @@
-﻿using WordWisp.API.Models.DTOs.Words;
+﻿using WordWisp.Web.Models.DTOs.Words;
 
-namespace WordWisp.API.Models.DTOs.Dictionaries
+namespace WordWisp.Web.Models.DTOs.Dictionaries
 {
     public class DictionaryDetailDto
     {
@@ -12,4 +12,3 @@ namespace WordWisp.API.Models.DTOs.Dictionaries
         public List<WordDto> Words { get; set; } = new();
     }
 }
-

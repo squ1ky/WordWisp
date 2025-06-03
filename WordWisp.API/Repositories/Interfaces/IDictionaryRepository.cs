@@ -12,6 +12,8 @@ namespace WordWisp.API.Repositories.Interfaces
         Task<Dictionary> UpdateAsync(Dictionary dictionary);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id, int userId);
+        Task<bool> ToggleVisibilityAsync(int id, int userId);
+        Task<Dictionary?> GetByIdAndUserIdForUpdateAsync(int id, int userId);
     }
 }
 

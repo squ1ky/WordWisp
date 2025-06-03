@@ -120,5 +120,20 @@ namespace WordWisp.API.Controllers
 
             return NoContent();
         }
+
+        [HttpPatch("{dictionaryId}/toggle-visibility")]
+        [Authorize]
+        public async Task<IActionResult> ToggleVisibility(int userId, int dictionaryId)
+        {
+            if (!_userContext.IsOwner(userId))
+                return StatusCode(403, new { message = ErrorMessages.CanEditOnlyOwnDictionaries });
+
+            var result = await _dictionaryService.ToggleVisibilityAsync(dictionaryId, userId);
+
+            if (!result)
+                return StatusCode(404, new { message = ErrorMessages.DictionaryNotFound });
+
+            return Ok(new { message = "Видимость словаря изменена", success = true });
+        }
     }
 }

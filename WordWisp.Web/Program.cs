@@ -1,4 +1,6 @@
 using WordWisp.Web.Models;
+using WordWisp.Web.Services.Interfaces;
+using WordWisp.Web.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

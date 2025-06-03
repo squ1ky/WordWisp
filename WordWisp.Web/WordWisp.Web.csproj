@@ -11,6 +11,15 @@
   <ItemGroup>
     <None Remove="Pages\Auth\" />
     <None Remove="Models\" />
+    <None Remove="Pages\Dictionaries\" />
+    <None Remove="Models\DTOs\Dictionaries\" />
+    <None Remove="Models\DTOs\Words\" />
+    <None Remove="Pages\Words\" />
+    <None Remove="Models\Dictionaries\" />
+    <None Remove="Models\Words\" />
+    <None Remove="Services\" />
+    <None Remove="Services\Implementations\" />
+    <None Remove="Services\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Auth\" />
@@ -18,5 +27,14 @@
     <Folder Include="Models\Auth\" />
     <Folder Include="Models\DTOs\" />
     <Folder Include="Models\DTOs\Auth\" />
+    <Folder Include="Pages\Dictionaries\" />
+    <Folder Include="Models\DTOs\Dictionaries\" />
+    <Folder Include="Models\DTOs\Words\" />
+    <Folder Include="Pages\Words\" />
+    <Folder Include="Models\Dictionaries\" />
+    <Folder Include="Models\Words\" />
+    <Folder Include="Services\" />
+    <Folder Include="Services\Implementations\" />
+    <Folder Include="Services\Interfaces\" />
   </ItemGroup>
 </Project>
