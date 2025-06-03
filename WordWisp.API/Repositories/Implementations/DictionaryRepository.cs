@@ -107,5 +107,14 @@ namespace WordWisp.API.Repositories.Implementations
             return await _context.Dictionaries
                 .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
         }
+
+
+        public async Task<int> GetDictionariesCountByUserIdAsync(int userId)
+        {
+            return await _context.Dictionaries
+                .Where(d => d.UserId == userId)
+                .CountAsync();
+        }
+
     }
 }

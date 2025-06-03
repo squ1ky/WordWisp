@@ -80,6 +80,8 @@ builder.Services.AddScoped<IWordRepository, WordRepository>();
 
 builder.Services.AddScoped<IDictionaryService, DictionaryService>();
 builder.Services.AddScoped<IWordService, WordService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 // Db
 

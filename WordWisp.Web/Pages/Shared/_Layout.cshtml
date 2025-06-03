@@ -32,9 +32,27 @@
                         <li class="nav-item">
                             <a href="/exams" class="nav-link">Экзамен</a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/account" class="nav-link">Аккаунт</a>
-                        </li>
+
+                        <!-- В навигационном меню, если пользователь авторизован -->
+                        @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Request.Cookies["AuthToken"]))
+                        {
+                            <li class="nav-item">
+                                <a href="/account" class="nav-link">Аккаунт</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/auth/logout">
+                                    <i class="bi bi-box-arrow-right"></i> Выход
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a href="/auth/login" class="nav-link">Аккаунт</a>
+                            </li>
+                        }
+
+
                     </ul>
                 </nav>
             </div>
@@ -55,4 +73,5 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

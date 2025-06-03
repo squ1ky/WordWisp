@@ -46,17 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
-    <Folder Include="Models\" />
     <Folder Include="Models\Entities\" />
-    <Folder Include="Models\DTOs\" />
     <Folder Include="Models\DTOs\Auth\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="Repositories\Implementations\" />
-    <Folder Include="Services\" />
-    <Folder Include="Services\Interfaces\" />
-    <Folder Include="Services\Implementations\" />
-    <Folder Include="Controllers\" />
     <Folder Include="Extensions\" />
     <Folder Include="Models\DTOs\Dictionaries\" />
     <Folder Include="Models\DTOs\Words\" />

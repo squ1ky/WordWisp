@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WordWisp.API.Models.DTOs.Auth;
 using WordWisp.API.Services.Interfaces;
 
@@ -89,6 +90,15 @@ namespace WordWisp.API.Controllers
             {
                 return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
             }
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            // В упрощенной версии просто возвращаем успешный ответ
+            // Клиент сам удалит токен из своего хранилища
+            return Ok(new { message = "Logout successful" });
         }
     }
 }
