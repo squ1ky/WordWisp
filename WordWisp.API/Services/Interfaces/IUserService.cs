@@ -10,5 +10,8 @@ namespace WordWisp.API.Services.Interfaces
         Task<UserDto> UpdateUserAsync(int id, UpdateUserRequest request);
         Task<bool> ChangePasswordAsync(int id, ChangePasswordRequest request);
         Task<bool> ChangeEmailAsync(int id, string newEmail);
+
+        Task<object?> GetUserStatsAsync(int id);
+
     }
 }

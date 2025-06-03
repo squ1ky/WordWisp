@@ -92,5 +92,29 @@ namespace WordWisp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("{id}/stats")]
+        public async Task<IActionResult> GetUserStats(int id)
+        {
+            _logger.LogInformation($"GET stats request for user {id}");
+
+            if (!_userContext.IsOwner(id))
+                return StatusCode(403, new { message = "Доступ запрещен" });
+
+            try
+            {
+                var stats = await _userService.GetUserStatsAsync(id);
+                if (stats == null)
+                    return NotFound(new { message = "Пользователь не найден" });
+
+                return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error getting user stats {id}: {ex.Message}");
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+            }
+        }
+
     }
 }

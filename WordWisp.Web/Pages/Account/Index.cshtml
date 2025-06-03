@@ -1,0 +1,265 @@
+﻿@page "/account"
+@model AccountIndexModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Мой профиль";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (Model.UserStats.HasValue)
+    {
+        var userStats = Model.UserStats.Value;
+        var role = userStats.GetProperty("role").GetInt32();
+        var roleText = role switch
+        {
+            1 => "Студент",
+            2 => "Преподаватель",
+            3 => "Администратор",
+            _ => "Неизвестно"
+        };
+
+        <div class="account-header">
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="profile-details">
+                    <h1>@userStats.GetProperty("name").GetString() @userStats.GetProperty("surname").GetString()</h1>
+                    <p class="username">@@@userStats.GetProperty("username").GetString()</p>
+                    <p class="email">
+                        @userStats.GetProperty("email").GetString()
+                        @if (userStats.GetProperty("isEmailVerified").GetBoolean())
+                        {
+                            <span class="verified-badge">
+                                <i class="bi bi-patch-check-fill"></i> Подтвержден
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="unverified-badge">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Не подтвержден
+                            </span>
+                        }
+                    </p>
+                    <p class="role">
+                        <span class="role-badge role-@role">
+                            <i class="bi @(role == 1 ? "bi-mortarboard" : role == 2 ? "bi-person-workspace" : "bi-gear")"></i>
+                            @roleText
+                        </span>
+                    </p>
+                    <p class="member-since">
+                        Участник с @userStats.GetProperty("createdAt").GetDateTime().ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"))
+                    </p>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <a href="/users/@userStats.GetProperty("userId").GetInt32()/edit" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Редактировать профиль
+                </a>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            @if (role == 1)
+            {
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon student">
+                            <i class="bi bi-translate"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Уровень английского</h3>
+                            <p class="stat-value">
+                                @{
+                                    var hasEnglishLevel = userStats.TryGetProperty("englishLevel", out var levelProp);
+                                    var englishLevel = hasEnglishLevel && levelProp.ValueKind != JsonValueKind.Null
+                                    ? levelProp.GetString()
+                                    : null;
+                                }
+                                @if (englishLevel != null)
+                                {
+                                    <span class="level-badge">@englishLevel</span>
+                                }
+                                else
+                                {
+                                    <span class="unknown">Неизвестно</span>
+                                    <small>Пройдите тест для определения уровня</small>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon student">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Последнее тестирование</h3>
+                            <p class="stat-value">
+                                @{
+                                    var hasLastTestDate = userStats.TryGetProperty("lastTestDate", out var dateProp);
+                                    var lastTestDate = hasLastTestDate && dateProp.ValueKind != JsonValueKind.Null
+                                    ? dateProp.GetDateTime()
+                                    : (DateTime?)null;
+                                }
+                                @if (lastTestDate.HasValue)
+                                {
+                                    <span>@lastTestDate.Value.ToString("dd.MM.yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span class="unknown">Не проходил</span>
+                                    <small>Пройдите первый тест</small>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="bi bi-journals"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Созданные словари</h3>
+                            <p class="stat-value">
+                                <span class="number">@userStats.GetProperty("dictionariesCount").GetInt32()</span>
+                                словарей
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="bi bi-bookmark-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Изученные слова</h3>
+                            <p class="stat-value">
+                                <span class="number">@userStats.GetProperty("studiedWordsCount").GetInt32()</span>
+                                <small>Функция в разработке</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (role == 2)
+            {
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="bi bi-journals"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Созданные словари</h3>
+                            <p class="stat-value">
+                                <span class="number">@userStats.GetProperty("dictionariesCount").GetInt32()</span>
+                                словарей
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon teacher">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Учебные материалы</h3>
+                            <p class="stat-value">
+                                <span class="number">@userStats.GetProperty("createdMaterialsCount").GetInt32()</span>
+                                <small>Функция в разработке</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon info">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Активные студенты</h3>
+                            <p class="stat-value">
+                                <span class="number">@userStats.GetProperty("studentsViewedCount").GetInt32()</span>
+                                <small>Функция в разработке</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card coming-soon">
+                        <div class="stat-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Аналитика</h3>
+                            <p class="stat-value">
+                                <small>Скоро будет доступно</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="quick-actions">
+            <h3>Быстрые действия</h3>
+            <div class="actions-grid">
+                <a href="/dictionaries" class="action-card">
+                    <i class="bi bi-journals"></i>
+                    <span>Мои словари</span>
+                </a>
+                <a href="/dictionaries/create" class="action-card">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Создать словарь</span>
+                </a>
+                @if (role == 1)
+                {
+                    <a href="#" class="action-card disabled">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Пройти тест</span>
+                        <small>Скоро</small>
+                    </a>
+                }
+                else if (role == 2)
+                {
+                    <a href="#" class="action-card disabled">
+                        <i class="bi bi-file-plus"></i>
+                        <span>Создать материал</span>
+                        <small>Скоро</small>
+                    </a>
+                }
+                <a href="/auth/logout" class="action-card danger">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Выход</span>
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-3">Загрузка профиля...</p>
+        </div>
+    }
+</div>

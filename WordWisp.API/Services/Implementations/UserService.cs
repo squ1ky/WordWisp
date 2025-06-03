@@ -1,6 +1,7 @@
 ﻿using WordWisp.API.Models.DTOs.Users;
 using WordWisp.API.Models.Entities;
 using WordWisp.API.Models.Requests.Users;
+using WordWisp.API.Repositories.Implementations;
 using WordWisp.API.Repositories.Interfaces;
 using WordWisp.API.Services.Interfaces;
 
@@ -10,13 +11,15 @@ namespace WordWisp.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
+        private readonly IDictionaryRepository _dictionaryRepository; // Добавили
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IEmailService emailService, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IEmailService emailService, ILogger<UserService> logger, IDictionaryRepository dictionaryRepository)
         {
             _userRepository = userRepository;
             _emailService = emailService;
             _logger = logger;
+            _dictionaryRepository = dictionaryRepository;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -146,5 +149,91 @@ namespace WordWisp.API.Services.Implementations
 
             return true;
         }
+
+        public async Task<object?> GetUserStatsAsync(int id)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(id);
+                if (user == null)
+                {
+                    _logger.LogWarning($"User with id {id} not found");
+                    return null;
+                }
+
+                // Безопасно получаем количество словарей
+                int dictionariesCount = 0;
+                try
+                {
+                    // Если DictionaryRepository не внедрен, используем заглушку
+                    if (_dictionaryRepository != null)
+                    {
+                        dictionariesCount = await _dictionaryRepository.GetDictionariesCountByUserIdAsync(id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error getting dictionaries count: {ex.Message}");
+                    dictionariesCount = 0; // Заглушка
+                }
+
+                // Создаем заглушки в зависимости от роли
+                if (user.Role == UserRole.Student)
+                {
+                    return new
+                    {
+                        userId = user.Id,
+                        username = user.Username,
+                        name = user.Name,
+                        surname = user.Surname,
+                        email = user.Email,
+                        role = user.Role,
+                        isEmailVerified = user.IsEmailVerified,
+                        createdAt = user.CreatedAt,
+                        dictionariesCount = dictionariesCount,
+                        englishLevel = (string?)null,
+                        lastTestDate = (DateTime?)null,
+                        studiedWordsCount = 0
+                    };
+                }
+                else if (user.Role == UserRole.Teacher)
+                {
+                    return new
+                    {
+                        userId = user.Id,
+                        username = user.Username,
+                        name = user.Name,
+                        surname = user.Surname,
+                        email = user.Email,
+                        role = user.Role,
+                        isEmailVerified = user.IsEmailVerified,
+                        createdAt = user.CreatedAt,
+                        dictionariesCount = dictionariesCount,
+                        createdMaterialsCount = 0,
+                        studentsViewedCount = 0
+                    };
+                }
+
+                return new
+                {
+                    userId = user.Id,
+                    username = user.Username,
+                    name = user.Name,
+                    surname = user.Surname,
+                    email = user.Email,
+                    role = user.Role,
+                    isEmailVerified = user.IsEmailVerified,
+                    createdAt = user.CreatedAt,
+                    dictionariesCount = dictionariesCount
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in GetUserStatsAsync: {ex.Message}");
+                throw;
+            }
+        }
+
+
     }
 }
