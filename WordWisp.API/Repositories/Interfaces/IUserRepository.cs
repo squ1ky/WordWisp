@@ -10,5 +10,10 @@ namespace WordWisp.API.Repositories.Interfaces
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ExistsByUsernameAsync(string username);
         Task<User> UpdateAsync(User user);
+
+        // Новые методы
+        Task<User?> GetByIdAsync(int id);
+        Task<bool> ExistsByEmailAsync(string email, int excludeUserId);
+        Task<bool> ExistsByUsernameAsync(string username, int excludeUserId);
     }
 }

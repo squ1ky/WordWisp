@@ -1,0 +1,183 @@
+﻿@page "/users/{id:int}/edit"
+@model EditUserModel
+@{
+    ViewData["Title"] = "Редактирование профиля";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>
+                        <i class="bi bi-person-gear"></i> Редактирование профиля
+                    </h2>
+                </div>
+                <div class="form-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+                        </div>
+                    }
+
+                    <!-- Основная информация -->
+                    <div class="section-card">
+                        <h5><i class="bi bi-person"></i> Основная информация</h5>
+                        <form method="post" asp-page-handler="Update" asp-route-id="@Model.User?.Id">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Input.Username" class="form-label">Имя пользователя *</label>
+                                        <input asp-for="Input.Username" class="form-control" placeholder="Введите имя пользователя" />
+                                        <span asp-validation-for="Input.Username" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Input.Email" class="form-label">Email *</label>
+                                        <input asp-for="Input.Email" class="form-control" type="email" placeholder="Введите email" />
+                                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                        @if (Model.User?.IsEmailVerified == false)
+                                        {
+                                            <small class="text-warning">
+                                                <i class="bi bi-exclamation-triangle"></i> Email не подтвержден
+                                            </small>
+                                        }
+                                        else if (Model.User?.IsEmailVerified == true)
+                                        {
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle"></i> Email подтвержден
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Input.Name" class="form-label">Имя *</label>
+                                        <input asp-for="Input.Name" class="form-control" placeholder="Введите имя" />
+                                        <span asp-validation-for="Input.Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Input.Surname" class="form-label">Фамилия *</label>
+                                        <input asp-for="Input.Surname" class="form-control" placeholder="Введите фамилию" />
+                                        <span asp-validation-for="Input.Surname" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Input.Role" class="form-label">Роль *</label>
+                                <select asp-for="Input.Role" class="form-control">
+                                    <option value="">Выберите роль</option>
+                                    <option value="1">Студент</option>
+                                    <option value="2">Преподаватель</option>
+                                </select>
+                                <span asp-validation-for="Input.Role" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Сохранить изменения
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Смена пароля -->
+                    <div class="section-card">
+                        <h5><i class="bi bi-key"></i> Смена пароля</h5>
+                        <form method="post" asp-page-handler="ChangePassword" asp-route-id="@Model.User?.Id">
+                            <div class="form-group">
+                                <label asp-for="PasswordInput.CurrentPassword" class="form-label">Текущий пароль *</label>
+                                <input asp-for="PasswordInput.CurrentPassword" class="form-control" type="password" placeholder="Введите текущий пароль" />
+                                <span asp-validation-for="PasswordInput.CurrentPassword" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="PasswordInput.NewPassword" class="form-label">Новый пароль *</label>
+                                        <input asp-for="PasswordInput.NewPassword" class="form-control" type="password" placeholder="Введите новый пароль" />
+                                        <span asp-validation-for="PasswordInput.NewPassword" class="text-danger"></span>
+                                        <small class="form-text text-muted">Минимум 6 символов</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="PasswordInput.ConfirmPassword" class="form-label">Подтвердите пароль *</label>
+                                        <input asp-for="PasswordInput.ConfirmPassword" class="form-control" type="password" placeholder="Повторите новый пароль" />
+                                        <span asp-validation-for="PasswordInput.ConfirmPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-key"></i> Изменить пароль
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/dictionaries" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Назад к словарям
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .section-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+        .section-card h5 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .section-card .form-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+        .alert i

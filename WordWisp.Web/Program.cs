@@ -12,6 +12,8 @@ builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSet
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
