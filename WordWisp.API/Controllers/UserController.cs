@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WordWisp.API.Constants;
 using WordWisp.API.Models.Requests.Users;
 using WordWisp.API.Services.Interfaces;
 
@@ -27,11 +28,11 @@ namespace WordWisp.API.Controllers
             _logger.LogInformation($"GET request for user {id}");
 
             if (!_userContext.IsOwner(id))
-                return StatusCode(403, new { message = "Доступ запрещен" });
+                return StatusCode(403, new { message = ErrorMessages.AccessDenied });
 
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
-                return NotFound(new { message = "Пользователь не найден" });
+                return NotFound(new { message = ErrorMessages.UserNotFound });
 
             return Ok(user);
         }
@@ -50,7 +51,7 @@ namespace WordWisp.API.Controllers
             if (!_userContext.IsOwner(id))
             {
                 _logger.LogWarning($"Access denied for user {id}");
-                return StatusCode(403, new { message = "Доступ запрещен" });
+                return StatusCode(403, new { message = ErrorMessages.AccessDenied });
             }
 
             try
@@ -67,7 +68,7 @@ namespace WordWisp.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Unexpected error updating user {id}: {ex.Message}");
-                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+                return StatusCode(500, new { message = ErrorMessages.InternalServerError });
             }
         }
 
@@ -77,19 +78,24 @@ namespace WordWisp.API.Controllers
             _logger.LogInformation($"Change password request for user {id}");
 
             if (!_userContext.IsOwner(id))
-                return StatusCode(403, new { message = "Доступ запрещен" });
+                return StatusCode(403, new { message = ErrorMessages.AccessDenied });
 
             try
             {
                 var result = await _userService.ChangePasswordAsync(id, request);
                 if (result)
-                    return Ok(new { message = "Пароль успешно изменен" });
+                    return Ok(new { message = ErrorMessages.PasswordChangeSuccess });
 
-                return NotFound(new { message = "Пользователь не найден" });
+                return NotFound(new { message = ErrorMessages.UserNotFound });
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unexpected error changing password for user {id}: {ex.Message}");
+                return StatusCode(500, new { message = ErrorMessages.InternalServerError });
             }
         }
 
@@ -99,22 +105,21 @@ namespace WordWisp.API.Controllers
             _logger.LogInformation($"GET stats request for user {id}");
 
             if (!_userContext.IsOwner(id))
-                return StatusCode(403, new { message = "Доступ запрещен" });
+                return StatusCode(403, new { message = ErrorMessages.AccessDenied });
 
             try
             {
                 var stats = await _userService.GetUserStatsAsync(id);
                 if (stats == null)
-                    return NotFound(new { message = "Пользователь не найден" });
+                    return NotFound(new { message = ErrorMessages.UserNotFound });
 
                 return Ok(stats);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting user stats {id}: {ex.Message}");
-                return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+                return StatusCode(500, new { message = ErrorMessages.InternalServerError });
             }
         }
-
     }
 }

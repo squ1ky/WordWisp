@@ -1,4 +1,5 @@
-﻿using WordWisp.API.Models.DTOs.Users;
+﻿using WordWisp.API.Constants;
+using WordWisp.API.Models.DTOs.Users;
 using WordWisp.API.Models.Entities;
 using WordWisp.API.Models.Requests.Users;
 using WordWisp.API.Repositories.Implementations;
@@ -11,7 +12,7 @@ namespace WordWisp.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
-        private readonly IDictionaryRepository _dictionaryRepository; // Добавили
+        private readonly IDictionaryRepository _dictionaryRepository; 
         private readonly ILogger<UserService> _logger;
 
         public UserService(IUserRepository userRepository, IEmailService emailService, ILogger<UserService> logger, IDictionaryRepository dictionaryRepository)
@@ -46,7 +47,7 @@ namespace WordWisp.API.Services.Implementations
 
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
-                throw new ArgumentException("Пользователь не найден");
+                throw new ArgumentException(ErrorMessages.UserNotFound);
 
             _logger.LogInformation($"Current user data: Username={user.Username}, Name={user.Name}, Surname={user.Surname}, Email={user.Email}, Role={user.Role}");
 
@@ -55,19 +56,17 @@ namespace WordWisp.API.Services.Implementations
             {
                 var usernameExists = await _userRepository.ExistsByUsernameAsync(request.Username, id);
                 if (usernameExists)
-                    throw new ArgumentException("Пользователь с таким именем уже существует");
+                    throw new ArgumentException(ErrorMessages.UsernameAlreadyExists);
             }
 
-            // Проверяем уникальность email только если он изменился
             bool emailChanged = !string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase);
             if (emailChanged)
             {
                 var emailExists = await _userRepository.ExistsByEmailAsync(request.Email, id);
                 if (emailExists)
-                    throw new ArgumentException("Пользователь с таким email уже существует");
+                    throw new ArgumentException(ErrorMessages.EmailAlreadyExists);
             }
 
-            // Обновляем данные
             user.Username = request.Username;
             user.Name = request.Name;
             user.Surname = request.Surname;
@@ -79,12 +78,10 @@ namespace WordWisp.API.Services.Implementations
                 user.Email = request.Email;
                 user.IsEmailVerified = false;
 
-                // Генерируем код подтверждения
                 var verificationCode = new Random().Next(100000, 999999).ToString();
                 user.EmailVerificationCode = verificationCode;
                 user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
 
-                // Отправляем email с кодом
                 try
                 {
                     await _emailService.SendVerificationEmailAsync(user.Email, verificationCode, user.Name);
@@ -119,11 +116,9 @@ namespace WordWisp.API.Services.Implementations
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null) return false;
 
-            // Проверяем текущий пароль
             if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
-                throw new ArgumentException("Неверный текущий пароль");
+                throw new ArgumentException(ErrorMessages.CurrentPasswordIncorrect);
 
-            // Хешируем новый пароль
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             await _userRepository.UpdateAsync(user);
 
@@ -137,14 +132,12 @@ namespace WordWisp.API.Services.Implementations
 
             var emailExists = await _userRepository.ExistsByEmailAsync(newEmail, id);
             if (emailExists)
-                throw new ArgumentException("Пользователь с таким email уже существует");
+                throw new ArgumentException(ErrorMessages.EmailAlreadyExists);
 
-            // Генерируем код подтверждения
             var verificationCode = new Random().Next(100000, 999999).ToString();
             user.EmailVerificationCode = verificationCode;
             user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
 
-            // Отправляем email с кодом на новый адрес
             await _emailService.SendVerificationEmailAsync(newEmail, verificationCode, user.Name);
 
             return true;
@@ -161,11 +154,9 @@ namespace WordWisp.API.Services.Implementations
                     return null;
                 }
 
-                // Безопасно получаем количество словарей
                 int dictionariesCount = 0;
                 try
                 {
-                    // Если DictionaryRepository не внедрен, используем заглушку
                     if (_dictionaryRepository != null)
                     {
                         dictionariesCount = await _dictionaryRepository.GetDictionariesCountByUserIdAsync(id);
@@ -174,10 +165,9 @@ namespace WordWisp.API.Services.Implementations
                 catch (Exception ex)
                 {
                     _logger.LogError($"Error getting dictionaries count: {ex.Message}");
-                    dictionariesCount = 0; // Заглушка
+                    dictionariesCount = 0; 
                 }
 
-                // Создаем заглушки в зависимости от роли
                 if (user.Role == UserRole.Student)
                 {
                     return new

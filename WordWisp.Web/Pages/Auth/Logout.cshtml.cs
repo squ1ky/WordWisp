@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace WordWisp.Web.Pages.Auth  // Убедитесь что namespace правильный
+namespace WordWisp.Web.Pages.Auth  
 {
-    public class LogoutModel : PageModel  // Убедитесь что класс называется LogoutModel
+    public class LogoutModel : PageModel  
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
@@ -34,8 +34,6 @@ namespace WordWisp.Web.Pages.Auth  // Убедитесь что namespace пра
                 {
                     // Игнорируем ошибки API при logout
                 }
-
-                // Удаляем токен из cookie
                 Response.Cookies.Delete("AuthToken");
             }
 
