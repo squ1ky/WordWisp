@@ -43,6 +43,8 @@
     <None Remove="Models\DTOs\Dictionaries\" />
     <None Remove="Models\DTOs\Words\" />
     <None Remove="Constants\" />
+    <None Remove="Models\Entities\LevelTest\" />
+    <None Remove="Models\DTOs\LevelTest\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -52,5 +54,7 @@
     <Folder Include="Models\DTOs\Dictionaries\" />
     <Folder Include="Models\DTOs\Words\" />
     <Folder Include="Constants\" />
+    <Folder Include="Models\Entities\LevelTest\" />
+    <Folder Include="Models\DTOs\LevelTest\" />
   </ItemGroup>
 </Project>

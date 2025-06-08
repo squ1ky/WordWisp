@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordWisp.API.Data;
@@ -11,9 +12,11 @@ using WordWisp.API.Data;
 namespace WordWisp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250608134945_LevelTestTables")]
+    partial class LevelTestTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,75 @@ namespace WordWisp.API.Migrations
                     b.ToTable("words", (string)null);
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTest", b =>
+            modelBuilder.Entity("WordWisp.API.Models.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("EmailVerificationCode")
+                        .HasColumnType("text")
+                        .HasColumnName("email_verification_code");
+
+                    b.Property<DateTime?>("EmailVerificationCodeExpiry")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("email_verification_code_expiry");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("surname");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,7 +245,7 @@ namespace WordWisp.API.Migrations
                     b.ToTable("level_tests", (string)null);
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestAnswer", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestAnswer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -187,10 +258,6 @@ namespace WordWisp.API.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("answered_at");
 
-                    b.Property<int>("EstimatedUserLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("estimated_user_level");
-
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("boolean")
                         .HasColumnName("is_correct");
@@ -199,17 +266,9 @@ namespace WordWisp.API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("level_test_id");
 
-                    b.Property<int>("QuestionDifficulty")
-                        .HasColumnType("integer")
-                        .HasColumnName("question_difficulty");
-
                     b.Property<int>("QuestionId")
                         .HasColumnType("integer")
                         .HasColumnName("question_id");
-
-                    b.Property<int>("QuestionOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("question_order");
 
                     b.Property<string>("SelectedAnswer")
                         .IsRequired()
@@ -226,12 +285,10 @@ namespace WordWisp.API.Migrations
                     b.HasIndex("LevelTestId", "QuestionId")
                         .IsUnique();
 
-                    b.HasIndex("LevelTestId", "QuestionOrder");
-
                     b.ToTable("level_test_answers", (string)null);
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -310,74 +367,6 @@ namespace WordWisp.API.Migrations
                     b.ToTable("level_test_questions", (string)null);
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("EmailVerificationCode")
-                        .HasColumnType("text")
-                        .HasColumnName("email_verification_code");
-
-                    b.Property<DateTime?>("EmailVerificationCodeExpiry")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("email_verification_code_expiry");
-
-                    b.Property<bool>("IsEmailVerified")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_email_verified");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("role");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("surname");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("username");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Username")
-                        .IsUnique();
-
-                    b.ToTable("users", (string)null);
-                });
-
             modelBuilder.Entity("WordWisp.API.Entities.Dictionary", b =>
                 {
                     b.HasOne("WordWisp.API.Models.Entities.User", "User")
@@ -400,15 +389,15 @@ namespace WordWisp.API.Migrations
                     b.Navigation("Dictionary");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestAnswer", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestAnswer", b =>
                 {
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.LevelTest", "LevelTest")
+                    b.HasOne("WordWisp.Web.Models.Entities.LevelTest.LevelTest", "LevelTest")
                         .WithMany("Answers")
                         .HasForeignKey("LevelTestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", "Question")
+                    b.HasOne("WordWisp.Web.Models.Entities.LevelTest.LevelTestQuestion", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -424,7 +413,7 @@ namespace WordWisp.API.Migrations
                     b.Navigation("Words");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTest", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTest", b =>
                 {
                     b.Navigation("Answers");
                 });

@@ -8,6 +8,8 @@ using WordWisp.API.Repositories.Interfaces;
 using WordWisp.API.Repositories.Implementations;
 using WordWisp.API.Services.Interfaces;
 using WordWisp.API.Services.Implementations;
+using WordWisp.API.Data.Repositories.Implementations;
+using WordWisp.API.Data.Repositories.Interfaces;
 
 Env.Load();
 
@@ -82,6 +84,12 @@ builder.Services.AddScoped<IDictionaryService, DictionaryService>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+
+// LevelTest
+
+builder.Services.AddScoped<ILevelTestRepository, LevelTestRepository>();
+builder.Services.AddScoped<IAdaptiveTestingService, AdaptiveTestingService>();
+builder.Services.AddScoped<ILevelTestService, LevelTestService>();
 
 // Db
 
