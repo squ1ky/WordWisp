@@ -7,5 +7,7 @@ namespace WordWisp.API.Models.Cache
         public Dictionary<EnglishLevel, List<LevelTestQuestion>> GrammarQuestions { get; set; } = new();
         public Dictionary<EnglishLevel, List<LevelTestQuestion>> VocabularyQuestions { get; set; } = new();
         public Dictionary<EnglishLevel, List<LevelTestQuestion>> ReadingQuestions { get; set; } = new();
+
+        public List<ReadingPassage> ReadingPassages { get; set; } = new();
     }
 }

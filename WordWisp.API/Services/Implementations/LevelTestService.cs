@@ -12,17 +12,14 @@ namespace WordWisp.API.Services.Implementations
         private readonly ILevelTestRepository _repository;
         private readonly IAdaptiveTestingService _adaptiveService;
         private readonly IMemoryCache _cache;
-        private readonly ILogger<LevelTestService> _logger;
 
         public LevelTestService(ILevelTestRepository repository,
                                 IAdaptiveTestingService adaptiveService,
-                                IMemoryCache cache,
-                                ILogger<LevelTestService> logger)
+                                IMemoryCache cache)
         {
             _repository = repository;
             _adaptiveService = adaptiveService;
             _cache = cache;
-            _logger = logger;
         }
 
         public async Task<LevelTestSessionDto?> StartTestAsync(int userId)
@@ -71,7 +68,7 @@ namespace WordWisp.API.Services.Implementations
                 Id = question.Id,
                 Section = question.Section.ToString(),
                 QuestionText = question.QuestionText,
-                ReadingPassage = question.ReadingPassage,
+                ReadingPassage = question.ReadingPassage?.Content,
                 OptionA = question.OptionA,
                 OptionB = question.OptionB,
                 OptionC = question.OptionC,
@@ -295,23 +292,14 @@ namespace WordWisp.API.Services.Implementations
 
             if (!_cache.TryGetValue(cacheKey, out TestQuestionCache? cachedData))
             {
-                _logger.LogInformation("Cache miss for test {TestId}. Loading questions from database.", testId);
-
                 cachedData = new TestQuestionCache
                 {
                     GrammarQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Grammar),
                     VocabularyQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Vocabulary),
-                    ReadingQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Reading)
-                };
+                    ReadingQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Reading),
 
-                _logger.LogInformation("Loaded {GrammarCount} grammar," +
-                                       " {VocabularyCount} vocabulary," +
-                                       " {ReadingCount} reading questions for test {TestId}",
-                    cachedData.GrammarQuestions.Values.Sum(list => list.Count),
-                    cachedData.VocabularyQuestions.Values.Sum(list => list.Count),
-                    cachedData.ReadingQuestions.Values.Sum(list => list.Count),
-                    testId
-                );
+                    ReadingPassages = await _repository.GetReadingPassagesWithQuestionsAsync()
+                };
 
                 var cacheOptions = new MemoryCacheEntryOptions
                 {
@@ -321,10 +309,6 @@ namespace WordWisp.API.Services.Implementations
                 };
 
                 _cache.Set(cacheKey, cachedData, cacheOptions);
-            }
-            else
-            {
-                _logger.LogInformation("Cache hit for test {TestId}.", testId);
             }
 
             return cachedData;
@@ -342,11 +326,15 @@ namespace WordWisp.API.Services.Implementations
             int testId,
             List<int> answeredIds)
         {
+            if (section == QuestionSection.Reading)
+            {
+                return await GetReadingQuestionFromCache(cache, testId, answeredIds);
+            }
+
             var sectionQuestions = section switch
             {
                 QuestionSection.Grammar => cache.GrammarQuestions,
                 QuestionSection.Vocabulary => cache.VocabularyQuestions,
-                QuestionSection.Reading => cache.ReadingQuestions,
                 _ => new Dictionary<EnglishLevel, List<LevelTestQuestion>>()
             };
 
@@ -398,6 +386,47 @@ namespace WordWisp.API.Services.Implementations
             }
 
             return null;
+        }
+
+        private async Task<LevelTestQuestion?> GetReadingQuestionFromCache(
+                TestQuestionCache cache,
+                int testId,
+                List<int> answeredIds)
+        {
+            if (!cache.ReadingPassages.Any())
+            {
+                return null;
+            }
+
+            var availablePassages = cache.ReadingPassages
+                .Where(p => p.Questions.Any(q => !answeredIds.Contains(q.Id)))
+                .ToList();
+
+            if (!availablePassages.Any())
+            {
+                return null;
+            }
+
+            var currentPassageId = await _repository.GetCurrentReadingPassageIdAsync(testId);
+            ReadingPassage? currentPassage = null;
+
+            if (currentPassageId.HasValue)
+            {
+                currentPassage = availablePassages.FirstOrDefault(p => p.Id == currentPassageId.Value);
+            }
+
+            if (currentPassage == null || !currentPassage.Questions.Any(q => !answeredIds.Contains(q.Id)))
+            {
+                currentPassage = availablePassages.OrderBy(p => Guid.NewGuid()).First();
+                await _repository.SaveCurrentReadingPassageIdAsync(testId, currentPassage.Id);
+            }
+
+            var nextQuestion = currentPassage.Questions
+                .Where(q => !answeredIds.Contains(q.Id))
+                .OrderBy(q => q.OrderInSection)
+                .FirstOrDefault();
+
+            return nextQuestion;
         }
     }
 }

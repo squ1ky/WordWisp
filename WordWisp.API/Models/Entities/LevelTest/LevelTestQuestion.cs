@@ -13,9 +13,6 @@ namespace WordWisp.API.Models.Entities.LevelTest
         [StringLength(1000)]
         public string QuestionText { get; set; } = "";
 
-        [StringLength(2000)]
-        public string? ReadingPassage { get; set; }
-
         [Required]
         [StringLength(200)]
         public string OptionA { get; set; } = "";
@@ -38,7 +35,11 @@ namespace WordWisp.API.Models.Entities.LevelTest
         public EnglishLevel Difficulty { get; set; }
         public int OrderInSection { get; set; }
 
+        public int? ReadingPassageId { get; set; }
+
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public virtual ReadingPassage? ReadingPassage { get; set; }
     }
 }

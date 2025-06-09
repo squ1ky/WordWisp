@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using WordWisp.API.Data.Repositories.Interfaces;
 using WordWisp.API.Models.Entities.LevelTest;
 
@@ -7,10 +8,12 @@ namespace WordWisp.API.Data.Repositories.Implementations
     public class LevelTestRepository : ILevelTestRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public LevelTestRepository(ApplicationDbContext context)
+        public LevelTestRepository(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<LevelTest?> GetActiveTestAsync(int userId)
@@ -186,6 +189,46 @@ namespace WordWisp.API.Data.Repositories.Implementations
 
             return questions.GroupBy(q => q.Difficulty)
                            .ToDictionary(g => g.Key, g => g.ToList());
+        }
+
+        public async Task<List<ReadingPassage>> GetReadingPassagesWithQuestionsAsync()
+        {
+            return await _context.ReadingPassages
+                .Include(p => p.Questions.Where(q => q.IsActive))
+                .Where(p => p.IsActive)
+                .ToListAsync();
+        }
+
+        public async Task<ReadingPassage?> GetReadingPassageByIdAsync(int passageId)
+        {
+            return await _context.ReadingPassages
+                .Include(p => p.Questions)
+                .FirstOrDefaultAsync(p => p.Id == passageId);
+        }
+
+        public async Task<int?> GetCurrentReadingPassageIdAsync(int testId)
+        {
+            var cacheKey = $"test_{testId}_reading_passage";
+
+            if (_cache?.TryGetValue(cacheKey, out int passageId) == true)
+            {
+                return passageId;
+            }
+
+            return null;
+        }
+
+        public async Task SaveCurrentReadingPassageIdAsync(int testId, int passageId)
+        {
+            var cacheKey = $"test_{testId}_reading_passage";
+
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(3),
+                Priority = CacheItemPriority.Normal
+            };
+
+            _cache?.Set(cacheKey, passageId, cacheOptions);
         }
     }
 }
