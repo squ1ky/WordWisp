@@ -22,5 +22,7 @@ namespace WordWisp.API.Data.Repositories.Interfaces
 
         Task<List<LevelTest>> GetUserTestHistoryAsync(int userId);
         Task<DateTime?> GetLastTestDateAsync(int userId);
+
+        Task<Dictionary<EnglishLevel, List<LevelTestQuestion>>> GetQuestionsBySectionGroupedByLevelAsync(QuestionSection section);
     }
 }

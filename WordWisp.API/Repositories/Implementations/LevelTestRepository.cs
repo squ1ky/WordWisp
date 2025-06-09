@@ -177,5 +177,15 @@ namespace WordWisp.API.Data.Repositories.Implementations
 
             return lastTest?.CompletedAt;
         }
+
+        public async Task<Dictionary<EnglishLevel, List<LevelTestQuestion>>> GetQuestionsBySectionGroupedByLevelAsync(QuestionSection section)
+        {
+            var questions = await _context.LevelTestQuestions
+                .Where(q => q.Section == section && q.IsActive)
+                .ToListAsync();
+
+            return questions.GroupBy(q => q.Difficulty)
+                           .ToDictionary(g => g.Key, g => g.ToList());
+        }
     }
 }

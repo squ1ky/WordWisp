@@ -2,6 +2,8 @@
 using WordWisp.API.Models.DTOs.LevelTest;
 using WordWisp.API.Models.Entities.LevelTest;
 using WordWisp.API.Services.Interfaces;
+using WordWisp.API.Models.Cache;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace WordWisp.API.Services.Implementations
 {
@@ -9,11 +11,18 @@ namespace WordWisp.API.Services.Implementations
     {
         private readonly ILevelTestRepository _repository;
         private readonly IAdaptiveTestingService _adaptiveService;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<LevelTestService> _logger;
 
-        public LevelTestService(ILevelTestRepository repository, IAdaptiveTestingService adaptiveService)
+        public LevelTestService(ILevelTestRepository repository,
+                                IAdaptiveTestingService adaptiveService,
+                                IMemoryCache cache,
+                                ILogger<LevelTestService> logger)
         {
             _repository = repository;
             _adaptiveService = adaptiveService;
+            _cache = cache;
+            _logger = logger;
         }
 
         public async Task<LevelTestSessionDto?> StartTestAsync(int userId)
@@ -26,6 +35,8 @@ namespace WordWisp.API.Services.Implementations
                 return null;
 
             var test = await _repository.CreateTestAsync(userId);
+
+            await GetOrCreateQuestionCacheAsync(test.Id);
 
             return new LevelTestSessionDto
             {
@@ -46,7 +57,10 @@ namespace WordWisp.API.Services.Implementations
             if (test == null || test.Status != TestStatus.Active)
                 return null;
 
-            var question = await _adaptiveService.GetNextQuestionAsync(testId, section);
+            var questionCache = await GetOrCreateQuestionCacheAsync(testId);
+            var answeredIds = await _repository.GetAnsweredQuestionIdsAsync(testId, section);
+
+            var question = await GetQuestionFromCache(questionCache, section, testId, answeredIds);
             if (question == null)
                 return null;
 
@@ -273,6 +287,117 @@ namespace WordWisp.API.Services.Implementations
                 return 0;
 
             return Math.Round(percentage, 2);
+        }
+
+        public async Task<TestQuestionCache> GetOrCreateQuestionCacheAsync(int testId)
+        {
+            var cacheKey = $"test_{testId}_questions";
+
+            if (!_cache.TryGetValue(cacheKey, out TestQuestionCache? cachedData))
+            {
+                _logger.LogInformation("Cache miss for test {TestId}. Loading questions from database.", testId);
+
+                cachedData = new TestQuestionCache
+                {
+                    GrammarQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Grammar),
+                    VocabularyQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Vocabulary),
+                    ReadingQuestions = await _repository.GetQuestionsBySectionGroupedByLevelAsync(QuestionSection.Reading)
+                };
+
+                _logger.LogInformation("Loaded {GrammarCount} grammar," +
+                                       " {VocabularyCount} vocabulary," +
+                                       " {ReadingCount} reading questions for test {TestId}",
+                    cachedData.GrammarQuestions.Values.Sum(list => list.Count),
+                    cachedData.VocabularyQuestions.Values.Sum(list => list.Count),
+                    cachedData.ReadingQuestions.Values.Sum(list => list.Count),
+                    testId
+                );
+
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(3),
+                    SlidingExpiration = TimeSpan.FromMinutes(30),
+                    Priority = CacheItemPriority.High
+                };
+
+                _cache.Set(cacheKey, cachedData, cacheOptions);
+            }
+            else
+            {
+                _logger.LogInformation("Cache hit for test {TestId}.", testId);
+            }
+
+            return cachedData;
+        }
+
+        public async Task InvalidateTestCacheAsync(int testId)
+        {
+            var cacheKey = $"test_{testId}_questions";
+            _cache.Remove(cacheKey);
+        }
+
+        private async Task<LevelTestQuestion?> GetQuestionFromCache(
+            TestQuestionCache cache,
+            QuestionSection section,
+            int testId,
+            List<int> answeredIds)
+        {
+            var sectionQuestions = section switch
+            {
+                QuestionSection.Grammar => cache.GrammarQuestions,
+                QuestionSection.Vocabulary => cache.VocabularyQuestions,
+                QuestionSection.Reading => cache.ReadingQuestions,
+                _ => new Dictionary<EnglishLevel, List<LevelTestQuestion>>()
+            };
+
+            var currentLevel = await _adaptiveService.GetCurrentEstimatedLevelAsync(testId, section);
+
+            if (sectionQuestions.ContainsKey(currentLevel))
+            {
+                var availableQuestions = sectionQuestions[currentLevel]
+                    .Where(q => !answeredIds.Contains(q.Id))
+                    .ToList();
+
+                if (availableQuestions.Any())
+                {
+                    return availableQuestions.OrderBy(q => Guid.NewGuid()).First();
+                }
+            }
+
+            return FindClosestLevelQuestionInCache(sectionQuestions, currentLevel, answeredIds);
+        }
+
+        private LevelTestQuestion? FindClosestLevelQuestionInCache(
+            Dictionary<EnglishLevel, List<LevelTestQuestion>> questions,
+            EnglishLevel targetLevel,
+            List<int> answeredIds)
+        {
+            var levels = new List<EnglishLevel>();
+
+            for (int i = 0; i <= 2; i++)
+            {
+                if (targetLevel + i <= EnglishLevel.C2)
+                    levels.Add(targetLevel + i);
+                if (targetLevel - i >= EnglishLevel.A1)
+                    levels.Add(targetLevel - i);
+            }
+
+            foreach (var level in levels)
+            {
+                if (questions.ContainsKey(level))
+                {
+                    var availableQuestions = questions[level]
+                        .Where(q => !answeredIds.Contains(q.Id))
+                        .ToList();
+
+                    if (availableQuestions.Any())
+                    {
+                        return availableQuestions.OrderBy(q => Guid.NewGuid()).First();
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

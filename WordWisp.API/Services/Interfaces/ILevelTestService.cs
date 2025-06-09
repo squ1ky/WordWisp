@@ -1,4 +1,5 @@
-﻿using WordWisp.API.Models.DTOs.LevelTest;
+﻿using WordWisp.API.Models.Cache;
+using WordWisp.API.Models.DTOs.LevelTest;
 using WordWisp.API.Models.Entities.LevelTest;
 
 namespace WordWisp.API.Services.Interfaces
@@ -12,5 +13,8 @@ namespace WordWisp.API.Services.Interfaces
         Task<bool> CanStartNewTestAsync(int userId);
         Task<LevelTestSessionDto?> GetActiveTestAsync(int userId);
         Task<List<LevelTestResultDto>> GetTestHistoryAsync(int userId);
+
+        Task<TestQuestionCache> GetOrCreateQuestionCacheAsync(int testId);
+        Task InvalidateTestCacheAsync(int testId);
     }
 }

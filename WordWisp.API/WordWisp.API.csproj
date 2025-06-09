@@ -24,6 +24,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="DotNetEnv" Version="2.5.0" />
     <PackageReference Include="MailKit" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
     <None Remove="Constants\" />
     <None Remove="Models\Entities\LevelTest\" />
     <None Remove="Models\DTOs\LevelTest\" />
+    <None Remove="Models\Cache\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -56,5 +58,6 @@
     <Folder Include="Constants\" />
     <Folder Include="Models\Entities\LevelTest\" />
     <Folder Include="Models\DTOs\LevelTest\" />
+    <Folder Include="Models\Cache\" />
   </ItemGroup>
 </Project>

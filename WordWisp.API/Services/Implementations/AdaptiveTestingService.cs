@@ -13,21 +13,6 @@ namespace WordWisp.API.Services.Implementations
             _repository = repository;
         }
 
-        public async Task<LevelTestQuestion?> GetNextQuestionAsync(int testId, QuestionSection section)
-        {
-            var currentLevel = await GetCurrentEstimatedLevelAsync(testId, section);
-            var answeredQuestions = await _repository.GetAnsweredQuestionIdsAsync(testId, section);
-
-            var question = await _repository.GetQuestionByDifficultyAsync(section, currentLevel, answeredQuestions);
-
-            if (question == null)
-            {
-                question = await _repository.GetClosestDifficultyQuestionAsync(section, currentLevel, answeredQuestions);
-            }
-
-            return question;
-        }
-
         public async Task<EnglishLevel> UpdateEstimatedLevelAsync(int testId, bool isCorrect, EnglishLevel questionDifficulty)
         {
             var currentLevel = await GetCurrentEstimatedLevelAsync(testId);
