@@ -116,6 +116,10 @@ namespace WordWisp.API.Services.Implementations
 
             var answers = await _repository.GetTestAnswersAsync(testId);
 
+            const int EXPECTED_GRAMMAR_QUESTIONS = 50;
+            const int EXPECTED_VOCABULARY_QUESTIONS = 50;
+            const int EXPECTED_READING_QUESTIONS = 10;
+
             var grammarAnswers = answers.Where(a => a.Question.Section == QuestionSection.Grammar).ToList();
             var vocabularyAnswers = answers.Where(a => a.Question.Section == QuestionSection.Vocabulary).ToList();
             var readingAnswers = answers.Where(a => a.Question.Section == QuestionSection.Reading).ToList();
@@ -125,7 +129,11 @@ namespace WordWisp.API.Services.Implementations
             var readingScore = readingAnswers.Count(a => a.IsCorrect);
             var totalScore = grammarScore + vocabularyScore + readingScore;
 
-            var overallPercentage = SafePercentage(totalScore, answers.Count);
+            var grammarPercentage = SafePercentage(grammarScore, EXPECTED_GRAMMAR_QUESTIONS);
+            var vocabularyPercentage = SafePercentage(vocabularyScore, EXPECTED_VOCABULARY_QUESTIONS);
+            var readingPercentage = SafePercentage(readingScore, EXPECTED_READING_QUESTIONS);
+
+            var overallPercentage = CalculateWeightedAverage(grammarPercentage, vocabularyPercentage, readingPercentage);
             var level = DetermineEnglishLevel(overallPercentage);
 
             test.GrammarScore = grammarScore;
@@ -146,15 +154,27 @@ namespace WordWisp.API.Services.Implementations
                 GrammarScore = grammarScore,
                 VocabularyScore = vocabularyScore,
                 ReadingScore = readingScore,
-                GrammarPercentage = SafePercentage(grammarScore, grammarAnswers.Count),
-                VocabularyPercentage = SafePercentage(vocabularyScore, vocabularyAnswers.Count),
-                ReadingPercentage = SafePercentage(readingScore, readingAnswers.Count),
+                GrammarPercentage = grammarPercentage,
+                VocabularyPercentage = vocabularyPercentage,
+                ReadingPercentage = readingPercentage,
                 OverallPercentage = overallPercentage,
                 CompletedAt = test.CompletedAt.Value,
-                Recommendations = GenerateRecommendations(grammarScore, vocabularyScore, readingScore, level),
+                Recommendations = GenerateRecommendations(grammarScore, vocabularyScore, readingScore, level, grammarAnswers.Count, vocabularyAnswers.Count, readingAnswers.Count),
                 StudyAreas = GenerateStudyAreas(grammarScore, vocabularyScore, readingScore)
             };
         }
+
+        private double CalculateWeightedAverage(double grammarPercentage, double vocabularyPercentage, double readingPercentage)
+        {
+            const double GRAMMAR_WEIGHT = 50.0 / 110.0;     // 45.45%
+            const double VOCABULARY_WEIGHT = 50.0 / 110.0;  // 45.45%
+            const double READING_WEIGHT = 10.0 / 110.0;     // 9.09%
+
+            return (grammarPercentage * GRAMMAR_WEIGHT) +
+                   (vocabularyPercentage * VOCABULARY_WEIGHT) +
+                   (readingPercentage * READING_WEIGHT);
+        }
+
 
         public async Task<bool> CanStartNewTestAsync(int userId)
         {
@@ -213,18 +233,23 @@ namespace WordWisp.API.Services.Implementations
             };
         }
 
-        private List<string> GenerateRecommendations(int grammarScore, int vocabularyScore, int readingScore, EnglishLevel level)
+        private List<string> GenerateRecommendations(int grammarScore, int vocabularyScore, int readingScore, EnglishLevel level, int grammarAnswered, int vocabularyAnswered, int readingAnswered)
         {
             var recommendations = new List<string>();
 
-            if (grammarScore < vocabularyScore) recommendations.Add("Улучшить знание грамматики");
-            if (vocabularyScore < grammarScore) recommendations.Add("Расширить словарный запас");
-            if (readingScore < (grammarScore + vocabularyScore) / 2) recommendations.Add("Практиковать чтение");
+            if (grammarScore < 25) recommendations.Add("Уделите особое внимание изучению грамматики");
+            if (vocabularyScore < 25) recommendations.Add("Расширяйте словарный запас через чтение и карточки");
+            if (readingScore < 5) recommendations.Add("Больше читайте на английском языке");
+
+            var totalMissed = (50 - grammarAnswered) + (50 - vocabularyAnswered) + (10 - readingAnswered);
+            if (totalMissed > 20)
+                recommendations.Add("В следующий раз постарайтесь ответить на все вопросы для более точной оценки");
 
             recommendations.Add($"Изучать материалы уровня {level}");
 
             return recommendations;
         }
+
 
         private List<string> GenerateStudyAreas(int grammarScore, int vocabularyScore, int readingScore)
         {
@@ -259,12 +284,16 @@ namespace WordWisp.API.Services.Implementations
                     GrammarScore = test.GrammarScore ?? 0,
                     VocabularyScore = test.VocabularyScore ?? 0,
                     ReadingScore = test.ReadingScore ?? 0,
-                    GrammarPercentage = SafePercentage(test.GrammarScore ?? 0, grammarAnswers.Count),
-                    VocabularyPercentage = SafePercentage(test.VocabularyScore ?? 0, vocabularyAnswers.Count),
-                    ReadingPercentage = SafePercentage(test.ReadingScore ?? 0, readingAnswers.Count),
-                    OverallPercentage = SafePercentage(test.TotalScore ?? 0, testAnswers.Count),
+                    GrammarPercentage = SafePercentage(test.GrammarScore ?? 0, 50),
+                    VocabularyPercentage = SafePercentage(test.VocabularyScore ?? 0, 50),
+                    ReadingPercentage = SafePercentage(test.ReadingScore ?? 0, 10),
+                    OverallPercentage = CalculateWeightedAverage(
+                        SafePercentage(test.GrammarScore ?? 0, 50),
+                        SafePercentage(test.VocabularyScore ?? 0, 50),
+                        SafePercentage(test.ReadingScore ?? 0, 10)
+                    ),
                     CompletedAt = test.CompletedAt ?? DateTime.MinValue,
-                    Recommendations = GenerateRecommendations(test.GrammarScore ?? 0, test.VocabularyScore ?? 0, test.ReadingScore ?? 0, test.DeterminedLevel ?? EnglishLevel.A1),
+                    Recommendations = GenerateRecommendations(test.GrammarScore ?? 0, test.VocabularyScore ?? 0, test.ReadingScore ?? 0, test.DeterminedLevel ?? EnglishLevel.A1, grammarAnswers.Count, vocabularyAnswers.Count, readingAnswers.Count),
                     StudyAreas = GenerateStudyAreas(test.GrammarScore ?? 0, test.VocabularyScore ?? 0, test.ReadingScore ?? 0)
                 };
 
