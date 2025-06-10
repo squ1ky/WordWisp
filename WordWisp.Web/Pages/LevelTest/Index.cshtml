@@ -1,0 +1,185 @@
+﻿@page "/level-test"
+@model WordWisp.Web.Pages.LevelTest.IndexModel
+@{
+    ViewData["Title"] = "Тест уровня английского";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/level-test.css" />
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-primary mb-3">
+                    <i class="fas fa-graduation-cap me-3"></i>
+                    Определение уровня английского языка
+                </h1>
+                <p class="lead text-muted">Узнайте свой уровень владения английским языком с помощью адаптивного тестирования</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @TempData["Error"]
+                </div>
+            }
+
+            @if (Model.ActiveTest != null)
+            {
+                <div class="card border-info shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            У вас есть незавершенный тест
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <p class="mb-2">
+                                    <strong>Начат:</strong> @Model.ActiveTest.StartedAt.ToString("dd.MM.yyyy в HH:mm")
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Прогресс:</strong> @Model.ActiveTest.CurrentQuestionNumber из @Model.ActiveTest.TotalQuestions вопросов
+                                </p>
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar bg-info"
+                                         style="width: @Model.ActiveTest.ProgressPercentage%"
+                                         aria-valuenow="@Model.ActiveTest.ProgressPercentage"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <a asp-page="Test" asp-route-testId="@Model.ActiveTest.Id"
+                                   class="btn btn-info btn-lg">
+                                    <i class="fas fa-play me-2"></i>
+                                    Продолжить тест
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (Model.CanStartTest)
+            {
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Информация о тесте
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="feature-item mb-3">
+                                            <i class="fas fa-question-circle text-primary me-2"></i>
+                                            <strong>110 вопросов</strong>
+                                            <p class="text-muted small mb-0">Комплексное тестирование</p>
+                                        </div>
+                                        <div class="feature-item mb-3">
+                                            <i class="fas fa-clock text-success me-2"></i>
+                                            <strong>120 минут</strong>
+                                            <p class="text-muted small mb-0">Достаточно времени для размышлений</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="feature-item mb-3">
+                                            <i class="fas fa-layer-group text-warning me-2"></i>
+                                            <strong>3 секции</strong>
+                                            <p class="text-muted small mb-0">Grammar, Vocabulary, Reading</p>
+                                        </div>
+                                        <div class="feature-item mb-3">
+                                            <i class="fas fa-brain text-info me-2"></i>
+                                            <strong>Умный алгоритм</strong>
+                                            <p class="text-muted small mb-0">Подстраивается под ваш уровень</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="text-center">
+                                    <h6 class="text-primary mb-3">Определяемые уровни:</h6>
+                                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                                        <span class="badge bg-danger fs-6">A1</span>
+                                        <span class="badge bg-warning fs-6">A2</span>
+                                        <span class="badge bg-info fs-6">B1</span>
+                                        <span class="badge bg-primary fs-6">B2</span>
+                                        <span class="badge bg-success fs-6">C1</span>
+                                        <span class="badge bg-dark fs-6">C2</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card shadow-sm h-100 border-success">
+                            <div class="card-header bg-success text-white text-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Готовы начать?
+                                </h5>
+                            </div>
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <div class="mb-4">
+                                    <i class="fas fa-medal text-success" style="font-size: 3rem;"></i>
+                                </div>
+                                <p class="text-muted mb-4">
+                                    Узнайте свой точный уровень английского языка
+                                </p>
+                                <form method="post" asp-page-handler="Start">
+                                    <button type="submit" class="btn btn-success btn-lg level-test-start-btn">
+                                        <i class="fas fa-play me-2"></i>
+                                        Начать тест
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-warning shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Тест временно недоступен
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-calendar-times text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <p class="lead mb-3">
+                            Повторное тестирование будет доступно через 30 дней после последнего прохождения
+                        </p>
+                        <p class="text-muted mb-4">
+                            Это ограничение помогает обеспечить точность результатов тестирования
+                        </p>
+                        <a asp-page="History" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-history me-2"></i>
+                            Посмотреть историю тестов
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

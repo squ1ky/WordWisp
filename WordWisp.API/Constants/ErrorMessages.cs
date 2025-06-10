@@ -1,7 +1,4 @@
-﻿using WordWisp.API.Constants;
-
-namespace WordWisp.API.Constants
-
+﻿namespace WordWisp.API.Constants
 {
     public static class ErrorMessages
     {
@@ -10,6 +7,7 @@ namespace WordWisp.API.Constants
         public const string NotFound = "Ресурс не найден";
         public const string InternalServerError = "Внутренняя ошибка сервера";
         public const string ConnectionError = "Не удалось подключиться к серверу";
+        public const string InvalidRequestData = "Неверные данные запроса";
 
         // Dictionaries
         public const string DictionaryNotFound = "Словарь не найден";
@@ -26,7 +24,6 @@ namespace WordWisp.API.Constants
         public const string CanDeleteOnlyOwnWords = "Можно удалять только свои слова";
         public const string NoDictionaryAccess = "Нет доступа к словарю";
 
-
         // Users
         public const string UserNotFound = "Пользователь не найден";
         public const string UserUpdateError = "Ошибка обновления данных пользователя";
@@ -37,5 +34,11 @@ namespace WordWisp.API.Constants
         public const string EmailAlreadyExists = "Пользователь с таким email уже существует";
         public const string CurrentPasswordIncorrect = "Неверный текущий пароль";
 
+        // LevelTest
+        public const string RetestingNotAvailable = "Повторное тестирование доступно через 30 дней";
+        public const string UnableStartTest = "Невозможно начать тест. Проверьте eligibility или завершите активный тест";
+        public const string WrongSection = "Неверная секция. Используйте: Grammar, Vocabulary, Reading";
+        public const string FailedSaveAnswer = "Не удалось сохранить ответ";
+        public const string UnableCompleteTest = "Не удалось завершить тест";
     }
 }

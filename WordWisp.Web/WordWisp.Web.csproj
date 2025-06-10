@@ -20,6 +20,9 @@
     <None Remove="Services\" />
     <None Remove="Services\Implementations\" />
     <None Remove="Services\Interfaces\" />
+    <None Remove="Pages\LevelTest\" />
+    <None Remove="Models\LevelTest\" />
+    <None Remove="Models\DTOs\LevelTest\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\Auth\" />
@@ -33,5 +36,8 @@
     <Folder Include="Services\" />
     <Folder Include="Services\Implementations\" />
     <Folder Include="Services\Interfaces\" />
+    <Folder Include="Pages\LevelTest\" />
+    <Folder Include="Models\LevelTest\" />
+    <Folder Include="Models\DTOs\LevelTest\" />
   </ItemGroup>
 </Project>

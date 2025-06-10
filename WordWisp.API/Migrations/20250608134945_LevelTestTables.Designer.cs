@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordWisp.API.Data;
@@ -11,9 +12,11 @@ using WordWisp.API.Data;
 namespace WordWisp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250608134945_LevelTestTables")]
+    partial class LevelTestTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,260 +115,6 @@ namespace WordWisp.API.Migrations
                     b.ToTable("words", (string)null);
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
-                    b.Property<int?>("DeterminedLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("determined_level");
-
-                    b.Property<int?>("GrammarScore")
-                        .HasColumnType("integer")
-                        .HasColumnName("grammar_score");
-
-                    b.Property<int?>("ReadingScore")
-                        .HasColumnType("integer")
-                        .HasColumnName("reading_score");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("started_at");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<int>("TimeLimitMinutes")
-                        .HasColumnType("integer")
-                        .HasColumnName("time_limit_minutes");
-
-                    b.Property<int>("TotalQuestions")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_questions");
-
-                    b.Property<int?>("TotalScore")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_score");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<int?>("VocabularyScore")
-                        .HasColumnType("integer")
-                        .HasColumnName("vocabulary_score");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "Status");
-
-                    b.ToTable("level_tests", (string)null);
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AnsweredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("answered_at");
-
-                    b.Property<int>("EstimatedUserLevel")
-                        .HasColumnType("integer")
-                        .HasColumnName("estimated_user_level");
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_correct");
-
-                    b.Property<int>("LevelTestId")
-                        .HasColumnType("integer")
-                        .HasColumnName("level_test_id");
-
-                    b.Property<int>("QuestionDifficulty")
-                        .HasColumnType("integer")
-                        .HasColumnName("question_difficulty");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("question_id");
-
-                    b.Property<int>("QuestionOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("question_order");
-
-                    b.Property<string>("SelectedAnswer")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)")
-                        .HasColumnName("selected_answer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LevelTestId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.HasIndex("LevelTestId", "QuestionId")
-                        .IsUnique();
-
-                    b.HasIndex("LevelTestId", "QuestionOrder");
-
-                    b.ToTable("level_test_answers", (string)null);
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CorrectAnswer")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)")
-                        .HasColumnName("correct_answer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("Difficulty")
-                        .HasColumnType("integer")
-                        .HasColumnName("difficulty");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("OptionA")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("option_a");
-
-                    b.Property<string>("OptionB")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("option_b");
-
-                    b.Property<string>("OptionC")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("option_c");
-
-                    b.Property<string>("OptionD")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("option_d");
-
-                    b.Property<int>("OrderInSection")
-                        .HasColumnType("integer")
-                        .HasColumnName("order_in_section");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("question_text");
-
-                    b.Property<int?>("ReadingPassageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("reading_passage_id");
-
-                    b.Property<int>("Section")
-                        .HasColumnType("integer")
-                        .HasColumnName("section");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReadingPassageId");
-
-                    b.HasIndex("Section");
-
-                    b.HasIndex("Section", "IsActive");
-
-                    b.ToTable("level_test_questions", (string)null);
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("EstimatedReadingTime")
-                        .HasColumnType("integer")
-                        .HasColumnName("estimated_reading_time");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer")
-                        .HasColumnName("level");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("title");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("topic");
-
-                    b.Property<int>("WordCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("word_count");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Level");
-
-                    b.HasIndex("Level", "IsActive");
-
-                    b.ToTable("reading_passages", (string)null);
-                });
-
             modelBuilder.Entity("WordWisp.API.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -434,6 +183,190 @@ namespace WordWisp.API.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<int?>("DeterminedLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("determined_level");
+
+                    b.Property<int?>("GrammarScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("grammar_score");
+
+                    b.Property<int?>("ReadingScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("reading_score");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TimeLimitMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("time_limit_minutes");
+
+                    b.Property<int>("TotalQuestions")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_questions");
+
+                    b.Property<int?>("TotalScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_score");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int?>("VocabularyScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("vocabulary_score");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("level_tests", (string)null);
+                });
+
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AnsweredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("answered_at");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_correct");
+
+                    b.Property<int>("LevelTestId")
+                        .HasColumnType("integer")
+                        .HasColumnName("level_test_id");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_id");
+
+                    b.Property<string>("SelectedAnswer")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("selected_answer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LevelTestId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("LevelTestId", "QuestionId")
+                        .IsUnique();
+
+                    b.ToTable("level_test_answers", (string)null);
+                });
+
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CorrectAnswer")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("correct_answer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("integer")
+                        .HasColumnName("difficulty");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("OptionA")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("option_a");
+
+                    b.Property<string>("OptionB")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("option_b");
+
+                    b.Property<string>("OptionC")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("option_c");
+
+                    b.Property<string>("OptionD")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("option_d");
+
+                    b.Property<int>("OrderInSection")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_in_section");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("question_text");
+
+                    b.Property<string>("ReadingPassage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reading_passage");
+
+                    b.Property<int>("Section")
+                        .HasColumnType("integer")
+                        .HasColumnName("section");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Section");
+
+                    b.HasIndex("Section", "IsActive");
+
+                    b.ToTable("level_test_questions", (string)null);
+                });
+
             modelBuilder.Entity("WordWisp.API.Entities.Dictionary", b =>
                 {
                     b.HasOne("WordWisp.API.Models.Entities.User", "User")
@@ -456,15 +389,15 @@ namespace WordWisp.API.Migrations
                     b.Navigation("Dictionary");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestAnswer", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTestAnswer", b =>
                 {
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.LevelTest", "LevelTest")
+                    b.HasOne("WordWisp.Web.Models.Entities.LevelTest.LevelTest", "LevelTest")
                         .WithMany("Answers")
                         .HasForeignKey("LevelTestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", "Question")
+                    b.HasOne("WordWisp.Web.Models.Entities.LevelTest.LevelTestQuestion", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -475,29 +408,14 @@ namespace WordWisp.API.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", b =>
-                {
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", "ReadingPassage")
-                        .WithMany("Questions")
-                        .HasForeignKey("ReadingPassageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("ReadingPassage");
-                });
-
             modelBuilder.Entity("WordWisp.API.Entities.Dictionary", b =>
                 {
                     b.Navigation("Words");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTest", b =>
+            modelBuilder.Entity("WordWisp.Web.Models.Entities.LevelTest.LevelTest", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", b =>
-                {
-                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

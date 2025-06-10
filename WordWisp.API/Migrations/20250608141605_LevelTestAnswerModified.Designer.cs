@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordWisp.API.Data;
@@ -11,9 +12,11 @@ using WordWisp.API.Data;
 namespace WordWisp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250608141605_LevelTestAnswerModified")]
+    partial class LevelTestAnswerModified
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -292,9 +295,10 @@ namespace WordWisp.API.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("question_text");
 
-                    b.Property<int?>("ReadingPassageId")
-                        .HasColumnType("integer")
-                        .HasColumnName("reading_passage_id");
+                    b.Property<string>("ReadingPassage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reading_passage");
 
                     b.Property<int>("Section")
                         .HasColumnType("integer")
@@ -302,68 +306,11 @@ namespace WordWisp.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReadingPassageId");
-
                     b.HasIndex("Section");
 
                     b.HasIndex("Section", "IsActive");
 
                     b.ToTable("level_test_questions", (string)null);
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("EstimatedReadingTime")
-                        .HasColumnType("integer")
-                        .HasColumnName("estimated_reading_time");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer")
-                        .HasColumnName("level");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("title");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("topic");
-
-                    b.Property<int>("WordCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("word_count");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Level");
-
-                    b.HasIndex("Level", "IsActive");
-
-                    b.ToTable("reading_passages", (string)null);
                 });
 
             modelBuilder.Entity("WordWisp.API.Models.Entities.User", b =>
@@ -475,16 +422,6 @@ namespace WordWisp.API.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTestQuestion", b =>
-                {
-                    b.HasOne("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", "ReadingPassage")
-                        .WithMany("Questions")
-                        .HasForeignKey("ReadingPassageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("ReadingPassage");
-                });
-
             modelBuilder.Entity("WordWisp.API.Entities.Dictionary", b =>
                 {
                     b.Navigation("Words");
@@ -493,11 +430,6 @@ namespace WordWisp.API.Migrations
             modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.LevelTest", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("WordWisp.API.Models.Entities.LevelTest.ReadingPassage", b =>
-                {
-                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,6 +2,7 @@
 using WordWisp.API.Models.Entities;
 using WordWisp.API.Extensions;
 using WordWisp.API.Entities;
+using WordWisp.API.Models.Entities.LevelTest;
 
 namespace WordWisp.API.Data
 {
@@ -16,11 +17,21 @@ namespace WordWisp.API.Data
         public DbSet<Dictionary> Dictionaries { get; set; }
         public DbSet<Word> Words { get; set; }
 
+        public DbSet<LevelTest> LevelTests { get; set; }
+        public DbSet<LevelTestQuestion> LevelTestQuestions { get; set; }
+        public DbSet<LevelTestAnswer> LevelTestAnswers { get; set; }
+
+        public DbSet<ReadingPassage> ReadingPassages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Dictionary>().ToTable("dictionaries");
             modelBuilder.Entity<Word>().ToTable("words");
+            modelBuilder.Entity<LevelTest>().ToTable("level_tests");
+            modelBuilder.Entity<LevelTestQuestion>().ToTable("level_test_questions");
+            modelBuilder.Entity<LevelTestAnswer>().ToTable("level_test_answers");
+            modelBuilder.Entity<ReadingPassage>().ToTable("reading_passages");
 
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
@@ -72,6 +83,76 @@ namespace WordWisp.API.Data
                       .WithMany(d => d.Words)
                       .HasForeignKey(w => w.DictionaryId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // LevelTest Configuration
+
+            modelBuilder.Entity<LevelTest>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.StartedAt).IsRequired();
+                entity.Property(e => e.Status).HasConversion<int>();
+                entity.Property(e => e.DeterminedLevel).HasConversion<int?>();
+
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.Status });
+            });
+
+            modelBuilder.Entity<LevelTestQuestion>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.QuestionText).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.OptionA).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.OptionB).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.OptionC).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.OptionD).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.CorrectAnswer).IsRequired().HasMaxLength(1);
+                entity.Property(e => e.Section).HasConversion<int>();
+                entity.Property(e => e.Difficulty).HasConversion<int>();
+
+                entity.HasIndex(e => e.Section);
+                entity.HasIndex(e => new { e.Section, e.IsActive });
+
+                entity.HasOne(e => e.ReadingPassage)
+                  .WithMany(p => p.Questions)
+                  .HasForeignKey(e => e.ReadingPassageId)
+                  .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<LevelTestAnswer>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.SelectedAnswer).IsRequired().HasMaxLength(1);
+
+                entity.Property(e => e.QuestionDifficulty).HasConversion<int>();
+                entity.Property(e => e.EstimatedUserLevel).HasConversion<int>();
+
+                entity.HasOne(e => e.LevelTest)
+                      .WithMany(e => e.Answers)
+                      .HasForeignKey(e => e.LevelTestId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Question)
+                      .WithMany()
+                      .HasForeignKey(e => e.QuestionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => e.LevelTestId);
+                entity.HasIndex(e => new { e.LevelTestId, e.QuestionId }).IsUnique();
+                entity.HasIndex(e => new { e.LevelTestId, e.QuestionOrder });
+            });
+
+            modelBuilder.Entity<ReadingPassage>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Content).IsRequired();
+                entity.Property(e => e.Topic).HasMaxLength(100);
+                entity.Property(e => e.Level).HasConversion<int>();
+
+                entity.HasIndex(e => e.Level);
+                entity.HasIndex(e => new { e.Level, e.IsActive });
             });
         }
     }
