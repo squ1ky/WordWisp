@@ -7,6 +7,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Font Awesome для дополнительных иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
@@ -17,43 +21,73 @@
     <header class="main-header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">
-                    <a href="/" class="logo-link">WordWisp</a>
+                <!-- Logo Section -->
+                <div class="logo-section">
+                    <a href="/" class="logo-link">
+                        <div class="logo-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <span class="logo-text">WordWisp</span>
+                    </a>
                 </div>
 
+                <!-- Navigation -->
                 <nav class="main-nav">
                     <ul class="nav-menu">
                         <li class="nav-item">
-                            <a href="/dictionaries" class="nav-link">Мои Словари</a>
+                            <a href="/dictionaries" class="nav-link">
+                                <i class="fas fa-book"></i>
+                                <span>Мои Словари</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/materials" class="nav-link">Учебные Материалы</a>
+                            <a href="/materials" class="nav-link">
+                                <i class="fas fa-layer-group"></i>
+                                <span>Материалы</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/level-test" class="nav-link">Экзамен</a>
+                            <a href="/level-test" class="nav-link">
+                                <i class="fas fa-medal"></i>
+                                <span>Тест Уровня</span>
+                            </a>
                         </li>
-
-                        @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Request.Cookies["AuthToken"]))
-                        {
-                            <li class="nav-item">
-                                <a href="/account" class="nav-link">Аккаунт</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/auth/logout">
-                                    <i class="bi bi-box-arrow-right"></i> Выход
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a href="/auth/login" class="nav-link">Аккаунт</a>
-                            </li>
-                        }
-
-
                     </ul>
                 </nav>
+
+                <!-- User Section -->
+                <div class="user-section">
+                    @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Request.Cookies["AuthToken"]))
+                    {
+                        <div class="user-menu">
+                            <a href="/account" class="user-link">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="user-text">Аккаунт</span>
+                            </a>
+                            <a class="logout-link" href="/auth/logout" title="Выход">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="auth-buttons">
+                            <a href="/auth/login" class="btn-login">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Войти</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </header>
@@ -66,11 +100,101 @@
 
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; 2025 WordWisp. Все права защищены.</p>
+            <div class="footer-content">
+                <!-- Левая секция с логотипом -->
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <span class="footer-logo-text">WordWisp</span>
+                    </div>
+                    <p class="footer-description">
+                        Изучайте английский язык эффективно с персональными словарями и тестами уровня
+                    </p>
+                </div>
+
+                <!-- Навигация -->
+                <div class="footer-nav">
+                    <div class="footer-column">
+                        <h4>Обучение</h4>
+                        <ul>
+                            <li><a href="/dictionaries">Мои Словари</a></li>
+                            <li><a href="/level-test">Тест Уровня</a></li>
+                            <li><a href="/level-test/history">История Тестов</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Материалы</h4>
+                        <ul>
+                            <li><a href="/materials">Учебные Материалы</a></li>
+                            <li><a href="/materials/grammar">Грамматика</a></li>
+                            <li><a href="/materials/vocabulary">Словарь</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Аккаунт</h4>
+                        <ul>
+                            @if (!string.IsNullOrEmpty(ViewContext.HttpContext.Request.Cookies["AuthToken"]))
+                            {
+                                <li><a href="/account">Мой Профиль</a></li>
+                                <li><a href="/auth/logout">Выход</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="/auth/login">Войти</a></li>
+                                <li><a href="/auth/register">Регистрация</a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Правая секция с контактами -->
+                <div class="footer-contact">
+                    <h4>Связаться с нами</h4>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>support@wordwisp.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-globe"></i>
+                            <span>wordwisp.com</span>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижняя строка -->
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2025 WordWisp. Все права защищены.</p>
+                    <div class="footer-links">
+                        <a href="/privacy">Политика конфиденциальности</a>
+                        <a href="/terms">Условия использования</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <script>// Mobile menu toggle
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', function () {
+            document.querySelector('.main-nav').classList.toggle('active');
+            this.classList.toggle('active');
+        });</script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>
