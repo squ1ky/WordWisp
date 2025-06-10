@@ -1,0 +1,143 @@
+﻿@page "/level-test/history"
+@model WordWisp.Web.Pages.LevelTest.HistoryModel
+@{
+    ViewData["Title"] = "История тестов";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-history me-2"></i>
+                    История тестов
+                </h2>
+                <a asp-page="Index" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Пройти новый тест
+                </a>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            @if (Model.TestHistory.Any())
+            {
+                <div class="row">
+                    @foreach (var test in Model.TestHistory)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-@test.LevelColor fs-6">@test.EnglishLevel</span>
+                                    <small class="text-muted">@test.CompletedAt.ToString("dd.MM.yyyy")</small>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">@test.LevelDescription</h5>
+                                    <p class="card-text">
+                                        <strong>Общий результат:</strong> @test.OverallPercentage.ToString("F1")%
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">Результаты по секциям:</small>
+                                        <div class="row text-center mt-2">
+                                            <div class="col-4">
+                                                <div class="text-primary">
+                                                    <strong>@test.GrammarPercentage.ToString("F0")%</strong>
+                                                    <br>
+                                                    <small>Grammar</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="text-success">
+                                                    <strong>@test.VocabularyPercentage.ToString("F0")%</strong>
+                                                    <br>
+                                                    <small>Vocabulary</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="text-info">
+                                                    <strong>@test.ReadingPercentage.ToString("F0")%</strong>
+                                                    <br>
+                                                    <small>Reading</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        <div class="progress-bar bg-@test.LevelColor"
+                                             style="width: @test.OverallPercentage%"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            ID: @test.TestId
+                                        </small>
+                                        <a asp-page="Results" asp-route-testId="@test.TestId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Подробнее
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.TestHistory.Any())
+                {
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        Статистика
+                                    </h5>
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <h4 class="text-primary">@Model.TestHistory.Count</h4>
+                                            <small class="text-muted">Всего тестов</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-success">@(Model.TestHistory.Any() ? Model.TestHistory.Average(t => t.OverallPercentage).ToString("F1") : "0")%</h4>
+                                            <small class="text-muted">Средний результат</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-info">@(Model.TestHistory.Any() ? Model.TestHistory.OrderByDescending(t => t.CompletedAt).First().EnglishLevel : "-")</h4>
+                                            <small class="text-muted">Последний уровень</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h4 class="text-warning">@(Model.TestHistory.Any() ? Model.TestHistory.Max(t => t.OverallPercentage).ToString("F1") : "0")%</h4>
+                                            <small class="text-muted">Лучший результат</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-clipboard-list fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">История тестов пуста</h4>
+                    <p class="text-muted">Вы еще не проходили тесты на определение уровня английского языка.</p>
+                    <a asp-page="Index" class="btn btn-primary btn-lg">
+                        <i class="fas fa-play me-2"></i>
+                        Пройти первый тест
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

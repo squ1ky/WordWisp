@@ -143,8 +143,6 @@ namespace WordWisp.API.Data
                 entity.HasIndex(e => new { e.LevelTestId, e.QuestionOrder });
             });
 
-            // LevelTest - ReadingPassage
-
             modelBuilder.Entity<ReadingPassage>(entity =>
             {
                 entity.HasKey(e => e.Id);

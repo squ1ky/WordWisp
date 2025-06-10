@@ -13,8 +13,8 @@ namespace WordWisp.Web.Pages.Dictionaries
         private readonly ITokenService _tokenService;
 
         public DictionariesIndexModel(IHttpClientFactory httpClientFactory,
-                                      IConfiguration configuration,
-                                      ITokenService tokenService)
+        IConfiguration configuration,
+        ITokenService tokenService)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
@@ -55,7 +55,7 @@ namespace WordWisp.Web.Pages.Dictionaries
                 var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5118";
 
                 httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
                 var response = await httpClient.GetAsync($"{apiBaseUrl}/api/users/{userId}/dictionaries");
 
@@ -104,7 +104,7 @@ namespace WordWisp.Web.Pages.Dictionaries
                 var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5118";
 
                 httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
                 var response = await httpClient.DeleteAsync($"{apiBaseUrl}/api/users/{userId}/dictionaries/{id}");
 
@@ -149,11 +149,11 @@ namespace WordWisp.Web.Pages.Dictionaries
                 var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5118";
 
                 httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
                 var response = await httpClient.PatchAsync(
-                    $"{apiBaseUrl}/api/users/{userId}/dictionaries/{id}/toggle-visibility",
-                    null);
+                $"{apiBaseUrl}/api/users/{userId}/dictionaries/{id}/toggle-visibility",
+                null);
 
                 if (response.IsSuccessStatusCode)
                 {

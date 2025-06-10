@@ -1,0 +1,293 @@
+﻿@page "/level-test/{testId:int}"
+@model WordWisp.Web.Pages.LevelTest.TestModel
+@{
+    ViewData["Title"] = "Прохождение теста";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/level-test.css" />
+}
+
+<div class="container-fluid">
+    @if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.TestSession != null)
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Вопрос @Model.TestSession.CurrentQuestionNumber из @Model.TestSession.TotalQuestions</strong>
+                                <span class="badge bg-primary ms-2">@Model.CurrentSection</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-clock me-1"></i>
+                                <span id="timer">@Model.TestSession.TimeRemaining.ToString(@"hh\:mm\:ss")</span>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width: @Model.TestSession.ProgressPercentage%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.CurrentQuestion != null)
+        {
+            <div class="row">
+                @if (Model.CurrentQuestion.IsReadingSection)
+                {
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5><i class="fas fa-book-open me-2"></i>Текст для чтения</h5>
+                            </div>
+                            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                                <div class="reading-passage">
+                                    @if (Model.CurrentQuestion.ReadingPassage != null)
+                                    {
+                                        foreach (var line in Model.CurrentQuestion.ReadingPassage.Split('\n'))
+                                        {
+                                            <p>@line</p>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5>
+                                    <i class="fas fa-question-circle me-2"></i>
+                                    Вопрос @Model.CurrentQuestion.QuestionNumber
+                                </h5>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-4">
+                                    <h6>@Model.CurrentQuestion.QuestionText</h6>
+                                </div>
+
+                                <div class="mb-3 flex-grow-1">
+                                    <form method="post" asp-page-handler="SubmitAnswer" id="answerForm">
+                                        <input type="hidden" asp-for="TestId" />
+                                        <input type="hidden" name="QuestionId" value="@Model.CurrentQuestion.Id" />
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="A"
+                                                   id="optionA"
+                                                   required>
+                                            <label class="form-check-label" for="optionA">
+                                                <strong>A.</strong> @Model.CurrentQuestion.OptionA
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="B"
+                                                   id="optionB"
+                                                   required>
+                                            <label class="form-check-label" for="optionB">
+                                                <strong>B.</strong> @Model.CurrentQuestion.OptionB
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="C"
+                                                   id="optionC"
+                                                   required>
+                                            <label class="form-check-label" for="optionC">
+                                                <strong>C.</strong> @Model.CurrentQuestion.OptionC
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="D"
+                                                   id="optionD"
+                                                   required>
+                                            <label class="form-check-label" for="optionD">
+                                                <strong>D.</strong> @Model.CurrentQuestion.OptionD
+                                            </label>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="mt-auto pt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button type="submit" form="answerForm" class="btn btn-primary">
+                                            <i class="fas fa-arrow-right"></i>
+                                            Следующий вопрос
+                                        </button>
+
+                                        <form method="post" asp-page-handler="CompleteTest" class="d-inline">
+                                            <input type="hidden" asp-for="TestId" />
+                                            <button type="submit" class="btn btn-success"
+                                                    onclick="return confirm('Вы уверены, что хотите завершить тест?')">
+                                                <i class="fas fa-check"></i>
+                                                Завершить тест
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>
+                                    <i class="fas fa-question-circle me-2"></i>
+                                    Вопрос @Model.CurrentQuestion.QuestionNumber
+                                </h5>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-4">
+                                    <h6>@Model.CurrentQuestion.QuestionText</h6>
+                                </div>
+
+                                <div class="mb-3 flex-grow-1">
+                                    <form method="post" asp-page-handler="SubmitAnswer" id="answerForm2">
+                                        <input type="hidden" asp-for="TestId" />
+                                        <input type="hidden" name="QuestionId" value="@Model.CurrentQuestion.Id" />
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="A"
+                                                   id="optionA2"
+                                                   required>
+                                            <label class="form-check-label" for="optionA2">
+                                                <strong>A.</strong> @Model.CurrentQuestion.OptionA
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="B"
+                                                   id="optionB2"
+                                                   required>
+                                            <label class="form-check-label" for="optionB2">
+                                                <strong>B.</strong> @Model.CurrentQuestion.OptionB
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="C"
+                                                   id="optionC2"
+                                                   required>
+                                            <label class="form-check-label" for="optionC2">
+                                                <strong>C.</strong> @Model.CurrentQuestion.OptionC
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio"
+                                                   name="SelectedAnswer"
+                                                   value="D"
+                                                   id="optionD2"
+                                                   required>
+                                            <label class="form-check-label" for="optionD2">
+                                                <strong>D.</strong> @Model.CurrentQuestion.OptionD
+                                            </label>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="mt-auto pt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button type="submit" form="answerForm2" class="btn btn-primary">
+                                            <i class="fas fa-arrow-right"></i>
+                                            Следующий вопрос
+                                        </button>
+
+                                        <form method="post" asp-page-handler="CompleteTest" class="d-inline">
+                                            <input type="hidden" asp-for="TestId" />
+                                            <button type="submit" class="btn btn-success"
+                                                    onclick="return confirm('Вы уверены, что хотите завершить тест?')">
+                                                <i class="fas fa-check"></i>
+                                                Завершить тест
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <h5>Секция завершена!</h5>
+                        <p>Переходим к следующей секции...</p>
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    @if (Model.TestSession != null)
+    {
+        <script>
+            let timeRemaining = Math.max(0, Math.floor(@Model.TestSession.TimeRemaining.TotalSeconds));
+
+            function updateTimer() {
+                if (timeRemaining <= 0) {
+                    document.getElementById('timer').textContent = "Время вышло!";
+                    document.getElementById('timer').className = "text-danger fw-bold";
+                    document.querySelector('form').submit();
+                    return;
+                }
+
+                const hours = Math.floor(timeRemaining / 3600);
+                const minutes = Math.floor((timeRemaining % 3600) / 60);
+                const seconds = Math.floor(timeRemaining % 60);
+
+                document.getElementById('timer').textContent =
+                    hours.toString().padStart(2, '0') + ':' +
+                    minutes.toString().padStart(2, '0') + ':' +
+                    seconds.toString().padStart(2, '0');
+
+                timeRemaining--;
+            }
+
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 1000);
+
+            window.addEventListener('beforeunload', function() {
+                clearInterval(timerInterval);
+            });
+        </script>
+    }
+}

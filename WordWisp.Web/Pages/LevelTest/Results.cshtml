@@ -1,0 +1,194 @@
+﻿@page "/level-test/{testId:int}/results"
+@model WordWisp.Web.Pages.LevelTest.ResultsModel
+@{
+    ViewData["Title"] = "Результаты теста";
+}
+
+@section Styles {
+    <style>
+        @@media print {
+            .btn, .card-header {
+                display: none !important;
+            }
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            @if (Model.TestResult != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h2 class="mb-3">
+                            <i class="fas fa-trophy text-warning me-2"></i>
+                            Результаты теста
+                        </h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h1 class="display-4 text-@Model.TestResult.LevelColor">
+                                    @Model.TestResult.EnglishLevel
+                                </h1>
+                                <p class="lead">@Model.TestResult.LevelDescription</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="text-muted">Общий результат</h3>
+                                <h2 class="text-primary">@Model.TestResult.OverallPercentage.ToString("F1")%</h2>
+                                <p class="text-muted">@Model.TestResult.TotalScore правильных ответов</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-grammar me-2"></i>
+                                    Grammar
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h3 class="text-primary">@Model.TestResult.GrammarPercentage.ToString("F1")%</h3>
+                                <p class="text-muted">@Model.TestResult.GrammarScore правильных ответов</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-primary"
+                                         style="width: @Model.TestResult.GrammarPercentage%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-book me-2"></i>
+                                    Vocabulary
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h3 class="text-success">@Model.TestResult.VocabularyPercentage.ToString("F1")%</h3>
+                                <p class="text-muted">@Model.TestResult.VocabularyScore правильных ответов</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success"
+                                         style="width: @Model.TestResult.VocabularyPercentage%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-book-open me-2"></i>
+                                    Reading
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h3 class="text-info">@Model.TestResult.ReadingPercentage.ToString("F1")%</h3>
+                                <p class="text-muted">@Model.TestResult.ReadingScore правильных ответов</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info"
+                                         style="width: @Model.TestResult.ReadingPercentage%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    Рекомендации
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.TestResult.Recommendations.Any())
+                                {
+                                    <ul class="list-unstyled">
+                                        @foreach (var recommendation in Model.TestResult.Recommendations)
+                                        {
+                                            <li class="mb-2">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                @recommendation
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Отличная работа! Продолжайте в том же духе.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-study me-2"></i>
+                                    Области для изучения
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.TestResult.StudyAreas.Any())
+                                {
+                                    @foreach (var area in Model.TestResult.StudyAreas)
+                                    {
+                                        <span class="badge bg-secondary me-2 mb-2">@area</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Все области освоены хорошо!</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <a asp-page="Index" class="btn btn-primary me-3">
+                            <i class="fas fa-home me-2"></i>
+                            Главная
+                        </a>
+                        <a asp-page="History" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-history me-2"></i>
+                            История тестов
+                        </a>
+                        <button class="btn btn-outline-success" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>
+                            Распечатать
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <small class="text-muted">
+                                    <strong>Тест завершен:</strong> @Model.TestResult.CompletedAt.ToString("dd.MM.yyyy HH:mm") |
+                                    <strong>ID теста:</strong> @Model.TestResult.TestId
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
