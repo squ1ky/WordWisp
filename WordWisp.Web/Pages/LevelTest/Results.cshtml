@@ -173,6 +173,13 @@
                             <i class="fas fa-print me-2"></i>
                             Распечатать
                         </button>
+                        <form method="post" asp-page-handler="SendCertificate" class="d-inline">
+                            <button type="submit" class="btn btn-outline-info"
+                                    onclick="return confirm('Отправить сертификат на вашу почту?')">
+                                <i class="fas fa-envelope me-2"></i>
+                                Отправить на почту
+                            </button>
+                        </form>
                     </div>
                 </div>
 

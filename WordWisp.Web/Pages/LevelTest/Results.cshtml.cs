@@ -109,5 +109,47 @@ namespace WordWisp.Web.Pages.LevelTest
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostSendCertificateAsync()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToPage("/Auth/Login");
+            }
+
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5118";
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var response = await httpClient.PostAsync($"{apiBaseUrl}/api/level-test/{TestId}/send-certificate", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Сертификат отправлен на вашу почту!";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToPage("/Auth/Login");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorObj = JsonSerializer.Deserialize<JsonElement>(errorContent);
+                    TempData["Error"] = errorObj.TryGetProperty("message", out var msg) ? msg.GetString() : "Ошибка при отправке сертификата";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Не удалось подключиться к серверу";
+                Console.WriteLine($"Exception: {ex}");
+            }
+
+            return RedirectToPage(new { testId = TestId });
+        }
     }
 }

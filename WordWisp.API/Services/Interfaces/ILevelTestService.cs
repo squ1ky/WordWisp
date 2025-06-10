@@ -16,5 +16,6 @@ namespace WordWisp.API.Services.Interfaces
 
         Task<TestQuestionCache> GetOrCreateQuestionCacheAsync(int testId);
         Task InvalidateTestCacheAsync(int testId);
+        Task<bool> SendCertificateAsync(int testId, int userId);
     }
 }

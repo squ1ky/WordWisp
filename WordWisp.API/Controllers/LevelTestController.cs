@@ -142,5 +142,21 @@ namespace WordWisp.API.Controllers
 
             return Ok(history);
         }
+
+        [HttpPost("{testId}/send-certificate")]
+        public async Task<IActionResult> SendCertificate(int testId)
+        {
+            var userId = _userContextService.GetCurrentUserId();
+            if (userId == null) return StatusCode(401, new { message = ErrorMessages.AccessDenied });
+
+            var success = await _levelTestService.SendCertificateAsync(testId, userId.Value);
+
+            if (!success)
+            {
+                return StatusCode(400, new { message = "Не удалось отправить сертификат" });
+            }
+
+            return Ok(new { message = "Сертификат отправлен на вашу почту" });
+        }
     }
 }

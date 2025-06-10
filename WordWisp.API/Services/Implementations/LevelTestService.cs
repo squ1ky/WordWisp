@@ -12,14 +12,20 @@ namespace WordWisp.API.Services.Implementations
         private readonly ILevelTestRepository _repository;
         private readonly IAdaptiveTestingService _adaptiveService;
         private readonly IMemoryCache _cache;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
 
         public LevelTestService(ILevelTestRepository repository,
                                 IAdaptiveTestingService adaptiveService,
-                                IMemoryCache cache)
+                                IMemoryCache cache,
+                                IEmailService emailService,
+                                IUserService userService)
         {
             _repository = repository;
             _adaptiveService = adaptiveService;
             _cache = cache;
+            _emailService = emailService;
+            _userService = userService;
         }
 
         public async Task<LevelTestSessionDto?> StartTestAsync(int userId)
@@ -456,6 +462,33 @@ namespace WordWisp.API.Services.Implementations
                 .FirstOrDefault();
 
             return nextQuestion;
+        }
+
+        public async Task<bool> SendCertificateAsync(int testId, int userId)
+        {
+            try
+            {
+                var test = await _repository.GetTestByIdAsync(testId, userId);
+                if (test == null || test.Status != TestStatus.Completed)
+                    return false;
+
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user == null) return false;
+
+                await _emailService.SendCertificateEmailAsync(
+                    user.Email,
+                    user.Name,
+                    test.DeterminedLevel?.ToString() ?? "Не определен",
+                    test.CompletedAt ?? DateTime.UtcNow,
+                    test.TotalScore ?? 0
+                );
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
