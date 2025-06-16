@@ -10,13 +10,8 @@ namespace WordWisp.API.Data.Repositories.Interfaces
         Task<LevelTest> UpdateTestAsync(LevelTest test);
 
         Task<LevelTestQuestion?> GetQuestionByIdAsync(int questionId);
-        Task<LevelTestQuestion?> GetQuestionByDifficultyAsync(QuestionSection section, EnglishLevel difficulty, List<int> excludeIds);
-        Task<LevelTestQuestion?> GetClosestDifficultyQuestionAsync(QuestionSection section, EnglishLevel targetDifficulty, List<int> excludeIds);
-
         Task<LevelTestAnswer> SaveAnswerAsync(LevelTestAnswer answer);
-        Task<LevelTestAnswer> UpdateAnswerAsync(LevelTestAnswer answer);
         Task<List<LevelTestAnswer>> GetTestAnswersAsync(int testId);
-        Task<bool> HasAnswerAsync(int testId, int questionId);
         Task<List<int>> GetAnsweredQuestionIdsAsync(int testId, QuestionSection section);
         Task<int> GetNextQuestionOrderAsync(int testId);
 
@@ -26,7 +21,6 @@ namespace WordWisp.API.Data.Repositories.Interfaces
         Task<Dictionary<EnglishLevel, List<LevelTestQuestion>>> GetQuestionsBySectionGroupedByLevelAsync(QuestionSection section);
 
         Task<List<ReadingPassage>> GetReadingPassagesWithQuestionsAsync();
-        Task<ReadingPassage?> GetReadingPassageByIdAsync(int passageId);
         Task<int?> GetCurrentReadingPassageIdAsync(int testId);
         Task SaveCurrentReadingPassageIdAsync(int testId, int passageId);
     }

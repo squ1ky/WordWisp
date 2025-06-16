@@ -40,5 +40,8 @@
         public const string WrongSection = "Неверная секция. Используйте: Grammar, Vocabulary, Reading";
         public const string FailedSaveAnswer = "Не удалось сохранить ответ";
         public const string UnableCompleteTest = "Не удалось завершить тест";
+
+        public const string FailedSendCertificate = "Не удалось отправить сертификат";
+        public const string SuccessCertificateSending = "Сертификат отправлен на почту";
     }
 }

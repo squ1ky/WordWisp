@@ -60,46 +60,6 @@ namespace WordWisp.API.Data.Repositories.Implementations
                 .FirstOrDefaultAsync(q => q.Id == questionId);
         }
 
-        public async Task<LevelTestQuestion?> GetQuestionByDifficultyAsync(QuestionSection section, EnglishLevel difficulty, List<int> excludeIds)
-        {
-            return await _context.LevelTestQuestions
-                .Where(q => q.Section == section
-                         && q.Difficulty == difficulty
-                         && q.IsActive
-                         && !excludeIds.Contains(q.Id))
-                .OrderBy(q => Guid.NewGuid())
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<LevelTestQuestion?> GetClosestDifficultyQuestionAsync(QuestionSection section, EnglishLevel targetDifficulty, List<int> excludeIds)
-        {
-            var levels = new List<EnglishLevel>();
-
-            for (int i = 0; i <= 2; i++)
-            {
-                if (targetDifficulty + i <= EnglishLevel.C2)
-                    levels.Add(targetDifficulty + i);
-                if (targetDifficulty - i >= EnglishLevel.A1)
-                    levels.Add(targetDifficulty - i);
-            }
-
-            foreach (var level in levels)
-            {
-                var question = await _context.LevelTestQuestions
-                    .Where(q => q.Section == section
-                             && q.Difficulty == level
-                             && q.IsActive
-                             && !excludeIds.Contains(q.Id))
-                    .OrderBy(q => Guid.NewGuid())
-                    .FirstOrDefaultAsync();
-
-                if (question != null)
-                    return question;
-            }
-
-            return null;
-        }
-
         public async Task<LevelTestAnswer> SaveAnswerAsync(LevelTestAnswer answer)
         {
             var existing = await _context.LevelTestAnswers
@@ -123,13 +83,6 @@ namespace WordWisp.API.Data.Repositories.Implementations
             return existing ?? answer;
         }
 
-        public async Task<LevelTestAnswer> UpdateAnswerAsync(LevelTestAnswer answer)
-        {
-            _context.LevelTestAnswers.Update(answer);
-            await _context.SaveChangesAsync();
-            return answer;
-        }
-
         public async Task<List<LevelTestAnswer>> GetTestAnswersAsync(int testId)
         {
             return await _context.LevelTestAnswers
@@ -137,12 +90,6 @@ namespace WordWisp.API.Data.Repositories.Implementations
                 .Where(a => a.LevelTestId == testId)
                 .OrderBy(a => a.QuestionOrder)
                 .ToListAsync();
-        }
-
-        public async Task<bool> HasAnswerAsync(int testId, int questionId)
-        {
-            return await _context.LevelTestAnswers
-                .AnyAsync(a => a.LevelTestId == testId && a.QuestionId == questionId);
         }
 
         public async Task<List<int>> GetAnsweredQuestionIdsAsync(int testId, QuestionSection section)
@@ -197,13 +144,6 @@ namespace WordWisp.API.Data.Repositories.Implementations
                 .Include(p => p.Questions.Where(q => q.IsActive))
                 .Where(p => p.IsActive)
                 .ToListAsync();
-        }
-
-        public async Task<ReadingPassage?> GetReadingPassageByIdAsync(int passageId)
-        {
-            return await _context.ReadingPassages
-                .Include(p => p.Questions)
-                .FirstOrDefaultAsync(p => p.Id == passageId);
         }
 
         public async Task<int?> GetCurrentReadingPassageIdAsync(int testId)

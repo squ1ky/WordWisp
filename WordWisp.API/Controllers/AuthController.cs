@@ -96,8 +96,6 @@ namespace WordWisp.API.Controllers
         [Authorize]
         public IActionResult Logout()
         {
-            // В упрощенной версии просто возвращаем успешный ответ
-            // Клиент сам удалит токен из своего хранилища
             return Ok(new { message = "Logout successful" });
         }
     }

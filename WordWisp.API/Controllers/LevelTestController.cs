@@ -153,10 +153,10 @@ namespace WordWisp.API.Controllers
 
             if (!success)
             {
-                return StatusCode(400, new { message = "Не удалось отправить сертификат" });
+                return StatusCode(400, new { message = ErrorMessages.FailedSendCertificate });
             }
 
-            return Ok(new { message = "Сертификат отправлен на вашу почту" });
+            return Ok(new { message = ErrorMessages.SuccessCertificateSending });
         }
     }
 }
