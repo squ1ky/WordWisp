@@ -9,6 +9,8 @@ using WordWisp.API.Repositories.Implementations;
 using WordWisp.API.Services.Interfaces;
 using WordWisp.API.Services.Implementations;
 using Microsoft.AspNetCore.Http.Features;
+using WordWisp.API.Data.Repositories.Interfaces;
+using WordWisp.API.Data.Repositories.Implementations;
 
 Env.Load();
 
