@@ -16,6 +16,17 @@ namespace WordWisp.API.Data
 
         public DbSet<Dictionary> Dictionaries { get; set; }
         public DbSet<Word> Words { get; set; }
+        public DbSet<LevelTest> LevelTests { get; set;}
+        public DbSet<LevelTestQuestion> LevelTestQuestions { get; set; }
+        public DbSet<LevelTestAnswer> LevelTestAnswers{ get; set; }
+        public DbSet<ReadingPassage> ReadingPassages{ get; set; }
+        public DbSet<Topic> Topics{ get; set; }
+        public DbSet<Material> Materials{ get; set; }
+        public DbSet<Exercise> Exercises{ get; set; }
+        public DbSet<ExerciseQuestion> ExerciseQuestions{ get; set; }
+        public DbSet<ExerciseAnswer> ExerciseAnswers{ get; set; }
+        public DbSet<UserExerciseAttempt> UserExerciseAttempts{ get; set; }
+        public DbSet<UserExerciseAnswer> UserExerciseAnswers{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,29 +73,29 @@ namespace WordWisp.API.Data
             modelBuilder.Entity<Material>(entity =>
             {
                 entity.HasKey(m => m.Id);
-        
+
                 entity.Property(m => m.Title)
                     .IsRequired()
                     .HasMaxLength(200);
-                    
+
                 entity.Property(m => m.Description)
                     .HasMaxLength(1000);
-                    
+
                 entity.Property(m => m.FilePath)
                     .HasMaxLength(500);
-                    
+
                 entity.Property(m => m.ExternalUrl)
                     .HasMaxLength(1000);
-                    
+
                 entity.Property(m => m.MimeType)
                     .HasMaxLength(100);
-                    
+
                 entity.Property(m => m.OriginalFileName)
                     .HasMaxLength(255);
-                    
+
                 entity.Property(m => m.MaterialType)
                     .HasConversion<int>();
-                    
+
                 entity.Property(m => m.CreatedAt)
                     .HasDefaultValueSql("NOW()");
 
@@ -100,17 +111,17 @@ namespace WordWisp.API.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).HasMaxLength(1000);
-                
+
                 // ИЗМЕНЕНО: Обновляем тип enum
                 entity.Property(e => e.ExerciseType).IsRequired().HasConversion<string>();
-                
+
                 // ДОБАВЛЕНО: Новые поля
                 entity.Property(e => e.TimeLimit).HasDefaultValue(30);
                 entity.Property(e => e.MaxAttempts).HasDefaultValue(3);
                 entity.Property(e => e.PassingScore).HasDefaultValue(70);
                 entity.Property(e => e.IsActive).HasDefaultValue(true);
                 entity.Property(e => e.Order).HasDefaultValue(0);
-                
+
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
                 entity.Property(e => e.UpdatedAt); // Без значения по умолчанию
 
@@ -131,23 +142,23 @@ namespace WordWisp.API.Data
             modelBuilder.Entity<ExerciseQuestion>(entity =>
             {
                 entity.HasKey(eq => eq.Id);
-                
+
                 entity.Property(eq => eq.Question)
                     .IsRequired()
                     .HasMaxLength(1000);
-                    
+
                 entity.Property(eq => eq.QuestionImagePath)
                     .HasMaxLength(500);
-                    
+
                 entity.Property(eq => eq.QuestionAudioPath)
                     .HasMaxLength(500);
-                    
+
                 entity.Property(eq => eq.Order)
                     .HasDefaultValue(0);
-                    
+
                 entity.Property(eq => eq.Points)
                     .HasDefaultValue(1);
-                    
+
                 entity.Property(eq => eq.CreatedAt)
                     .HasDefaultValueSql("NOW()");
 
@@ -161,20 +172,20 @@ namespace WordWisp.API.Data
             modelBuilder.Entity<ExerciseAnswer>(entity =>
             {
                 entity.HasKey(ea => ea.Id);
-                
+
                 entity.Property(ea => ea.AnswerText)
                     .IsRequired()
                     .HasMaxLength(500);
-                    
+
                 entity.Property(ea => ea.AnswerImagePath)
                     .HasMaxLength(500);
-                    
+
                 entity.Property(ea => ea.IsCorrect)
                     .HasDefaultValue(false);
-                    
+
                 entity.Property(ea => ea.Order)
                     .HasDefaultValue(0);
-                    
+
                 entity.Property(ea => ea.CreatedAt)
                     .HasDefaultValueSql("NOW()");
 
@@ -211,14 +222,14 @@ namespace WordWisp.API.Data
             modelBuilder.Entity<UserExerciseAnswer>(entity =>
             {
                 entity.HasKey(uea => uea.Id);
-        
+
                 entity.Property(uea => uea.AnswerText)
                     .HasMaxLength(1000);
-                    
+
                 entity.Property(uea => uea.PointsEarned)
                     .HasPrecision(5, 2)
                     .HasDefaultValue(0);
-                    
+
                 entity.Property(uea => uea.AnsweredAt)
                     .HasDefaultValueSql("NOW()");
 
