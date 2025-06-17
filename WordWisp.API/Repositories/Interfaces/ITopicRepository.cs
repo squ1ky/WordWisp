@@ -18,7 +18,8 @@ namespace WordWisp.API.Repositories.Interfaces
         Task<IEnumerable<Topic>> GetTopicsByTeacherAsync(int teacherId);
         Task<IEnumerable<Topic>> GetTopicsByTeacherAsync(int teacherId, int skip, int take);
         Task<int> GetTopicsCountByTeacherAsync(int teacherId);
-        
+        Task<int> GetTotalMaterialsCountByTeacherAsync(int teacherId);
+
         // CRUD операции для преподавателей
         Task<Topic> CreateAsync(Topic topic);
         Task<Topic> UpdateAsync(Topic topic);

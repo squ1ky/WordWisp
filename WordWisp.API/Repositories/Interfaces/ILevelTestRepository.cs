@@ -14,10 +14,10 @@ namespace WordWisp.API.Data.Repositories.Interfaces
         Task<List<LevelTestAnswer>> GetTestAnswersAsync(int testId);
         Task<List<int>> GetAnsweredQuestionIdsAsync(int testId, QuestionSection section);
         Task<int> GetNextQuestionOrderAsync(int testId);
-
         Task<List<LevelTest>> GetUserTestHistoryAsync(int userId);
         Task<DateTime?> GetLastTestDateAsync(int userId);
-
+        Task<string?> GetLastTestLevelAsync(int userId);
+        Task<int?> GetLastTestIdAsync(int userId);
         Task<Dictionary<EnglishLevel, List<LevelTestQuestion>>> GetQuestionsBySectionGroupedByLevelAsync(QuestionSection section);
 
         Task<List<ReadingPassage>> GetReadingPassagesWithQuestionsAsync();

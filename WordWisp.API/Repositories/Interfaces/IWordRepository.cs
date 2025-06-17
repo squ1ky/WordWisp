@@ -10,5 +10,6 @@ namespace WordWisp.API.Repositories.Interfaces
         Task<Word> UpdateAsync(Word word);
         Task DeleteAsync(int id);
         Task<List<Word>> SearchInDictionaryAsync(int dictionaryId, string searchTerm);
+        Task<int> GetWordsCountByUserIdAsync(int userId);
     }
 }

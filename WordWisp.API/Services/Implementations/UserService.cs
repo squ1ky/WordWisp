@@ -1,4 +1,5 @@
 ﻿using WordWisp.API.Constants;
+using WordWisp.API.Data.Repositories.Interfaces;
 using WordWisp.API.Models.DTOs.Users;
 using WordWisp.API.Models.Entities;
 using WordWisp.API.Models.Requests.Users;
@@ -14,13 +15,18 @@ namespace WordWisp.API.Services.Implementations
         private readonly IEmailService _emailService;
         private readonly IDictionaryRepository _dictionaryRepository; 
         private readonly ILogger<UserService> _logger;
-
-        public UserService(IUserRepository userRepository, IEmailService emailService, ILogger<UserService> logger, IDictionaryRepository dictionaryRepository)
+        private readonly IWordRepository _wordRepository;
+        private readonly ILevelTestRepository _levelTestRepository;
+        private readonly ITopicRepository _topicRepository;
+        public UserService(IUserRepository userRepository, IEmailService emailService, ILogger<UserService> logger, IDictionaryRepository dictionaryRepository, IWordRepository wordRepository, ILevelTestRepository levelTestRepository, ITopicRepository topicRepository)
         {
             _userRepository = userRepository;
             _emailService = emailService;
             _logger = logger;
             _dictionaryRepository = dictionaryRepository;
+            _wordRepository = wordRepository;
+            _levelTestRepository = levelTestRepository;
+            _topicRepository = topicRepository;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -155,11 +161,22 @@ namespace WordWisp.API.Services.Implementations
                 }
 
                 int dictionariesCount = 0;
+                int wordsCount = 0;
+
+                var lastTestLevel = await _levelTestRepository.GetLastTestLevelAsync(id);
+                var lastTestDate = await _levelTestRepository.GetLastTestDateAsync(id);
+                var lastTestId = await _levelTestRepository.GetLastTestIdAsync(id);
+                var testHistory = await _levelTestRepository.GetUserTestHistoryAsync(id);
+                var testCount = testHistory.Count;
+
+                var topicCount = await _topicRepository.GetTopicsCountByTeacherAsync(id);
+                var totalMaterialsCount = await _topicRepository.GetTotalMaterialsCountByTeacherAsync(id);
                 try
                 {
                     if (_dictionaryRepository != null)
                     {
                         dictionariesCount = await _dictionaryRepository.GetDictionariesCountByUserIdAsync(id);
+                        wordsCount = await _wordRepository.GetWordsCountByUserIdAsync(id);
                     }
                 }
                 catch (Exception ex)
@@ -181,9 +198,11 @@ namespace WordWisp.API.Services.Implementations
                         isEmailVerified = user.IsEmailVerified,
                         createdAt = user.CreatedAt,
                         dictionariesCount = dictionariesCount,
-                        englishLevel = (string?)null,
-                        lastTestDate = (DateTime?)null,
-                        studiedWordsCount = 0
+                        wordsCount = wordsCount,
+                        lastTestLevel = lastTestLevel,
+                        lastTestDate = lastTestDate,
+                        lastTestId = lastTestId,
+                        testCount = testCount
                     };
                 }
                 else if (user.Role == UserRole.Teacher)
@@ -199,8 +218,9 @@ namespace WordWisp.API.Services.Implementations
                         isEmailVerified = user.IsEmailVerified,
                         createdAt = user.CreatedAt,
                         dictionariesCount = dictionariesCount,
-                        createdMaterialsCount = 0,
-                        studentsViewedCount = 0
+                        wordsCount = wordsCount,
+                        createdMaterialsCount = topicCount,
+                        totalMaterialsCount = totalMaterialsCount
                     };
                 }
 

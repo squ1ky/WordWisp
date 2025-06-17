@@ -61,5 +61,12 @@ namespace WordWisp.API.Repositories.Implementations
                 .OrderByDescending(w => w.Id)
                 .ToListAsync();
         }
+
+        public async Task<int> GetWordsCountByUserIdAsync(int userId)
+        {
+            return await _context.Words
+                .Where(d => d.Dictionary.UserId == userId)
+                .CountAsync();
+        }
     }
 }
