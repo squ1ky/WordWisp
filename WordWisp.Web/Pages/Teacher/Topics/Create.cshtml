@@ -1,0 +1,122 @@
+@page "/teacher/topics/create"
+@model CreateTopicModel
+@{
+    ViewData["Title"] = "Создать топик";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>
+                        <i class="bi bi-plus-circle"></i> Создать новый топик
+                    </h2>
+                    <p class="text-muted">Создайте топик для размещения учебных материалов и упражнений</p>
+                </div>
+
+                <div class="form-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="form-group">
+                            <label asp-for="Input.Title" class="form-label">
+                                Название топика *
+                            </label>
+                            <input asp-for="Input.Title" class="form-control" placeholder="Введите название топика" />
+                            <span asp-validation-for="Input.Title" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Краткое и понятное название для вашего топика
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Input.Description" class="form-label">
+                                Описание
+                            </label>
+                            <textarea asp-for="Input.Description" class="form-control" rows="4" 
+                                      placeholder="Опишите содержание топика, цели обучения и что студенты изучат..."></textarea>
+                            <span asp-validation-for="Input.Description" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Подробное описание поможет студентам понять содержание топика
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input asp-for="Input.IsPublic" class="form-check-input" type="checkbox" />
+                                <label asp-for="Input.IsPublic" class="form-check-label">
+                                    Сделать топик публичным
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                Публичные топики видны всем студентам. Приватные топики видны только вам.
+                            </small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Создать топик
+                            </button>
+                            <a href="/teacher/topics" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Информационная панель -->
+            <div class="info-panel mt-4">
+                <h5><i class="bi bi-info-circle"></i> Что дальше?</h5>
+                <div class="info-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Создайте топик</strong>
+                            <p>Заполните основную информацию о топике</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Добавьте материалы</strong>
+                            <p>Загрузите тексты, изображения, аудио или видео</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Создайте упражнения</strong>
+                            <p>Добавьте тесты и задания для закрепления материала</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Опубликуйте</strong>
+                            <p>Сделайте топик публичным для доступа студентов</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

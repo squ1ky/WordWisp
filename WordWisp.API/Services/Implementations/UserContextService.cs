@@ -22,6 +22,24 @@ namespace WordWisp.API.Services.Implementations
             return int.TryParse(userIdClaim, out var userId) ? userId : null;
         }
 
+        public string? GetCurrentUserRole()
+        {
+            var roleClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role);
+            return roleClaim?.Value;
+        }
+
+        public bool IsTeacher()
+        {
+            var role = GetCurrentUserRole();
+            return role == "2";
+        }
+
+        public bool IsStudent()
+        {
+            var role = GetCurrentUserRole();
+            return role == "1";
+        }
+
         public bool IsOwner(int userId)
         {
             var currentUserId = GetCurrentUserId();

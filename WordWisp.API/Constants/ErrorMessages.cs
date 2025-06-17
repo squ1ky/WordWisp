@@ -34,6 +34,31 @@
         public const string EmailAlreadyExists = "Пользователь с таким email уже существует";
         public const string CurrentPasswordIncorrect = "Неверный текущий пароль";
 
+
+        // Topic
+        public const string TopicNotFound = "Топик не найден";
+        public const string TopicAccessDenied = "У вас нет доступа к этому топику";
+        public const string CanCreateOnlyAsTeacher = "Только преподаватели могут создавать топики";
+        public const string CanEditOnlyOwnTopics = "Можно редактировать только свои топики";
+        public const string CanDeleteOnlyOwnTopics = "Можно удалять только свои топики";
+        public const string TopicCreatedSuccessfully = "Топик успешно создан";
+        public const string TopicUpdatedSuccessfully = "Топик успешно обновлен";
+        public const string TopicDeletedSuccessfully = "Топик успешно удален";
+
+        // Materials
+        public const string MaterialNotFound = "Материал не найден";
+        public const string MaterialAccessDenied = "У вас нет доступа к этому материалу";
+        public const string CanCreateMaterialsOnlyInOwnTopics = "Можно создавать материалы только в своих топиках";
+        public const string CanEditOnlyOwnMaterials = "Можно редактировать только свои материалы";
+        public const string CanDeleteOnlyOwnMaterials = "Можно удалять только свои материалы";
+
+        // Exercises
+        public const string ExerciseNotFound = "Упражнение не найдено";
+        public const string ExerciseNotActive = "Упражнение неактивно";
+        public const string MaxAttemptsExceeded = "Превышено максимальное количество попыток";
+        public const string AttemptNotFound = "Попытка не найдена";
+        public const string AttemptAlreadyCompleted = "Попытка уже завершена";
+        public const string ExerciseAccessDenied = "У вас нет доступа к этому упражнению";
         // LevelTest
         public const string RetestingNotAvailable = "Повторное тестирование доступно через 30 дней";
         public const string UnableStartTest = "Невозможно начать тест. Проверьте eligibility или завершите активный тест";

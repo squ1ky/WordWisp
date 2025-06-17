@@ -1,0 +1,90 @@
+/* Студенческие стили */
+.student-header {
+    border-left: 4px solid var(--primary-color);
+}
+
+.student-badge {
+    background: rgba(var(--primary-color-rgb), 0.1) !important;
+    color: var(--primary-color) !important;
+    border-color: rgba(var(--primary-color-rgb), 0.3) !important;
+}
+
+.student-content {
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Прогресс изучения */
+.progress-section {
+    background: linear-gradient(135deg, var(--primary-color), #6366f1);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    color: white;
+}
+
+.progress-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.progress-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.progress-status {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.progress-actions .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.progress-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Навигация по материалам */
+.material-navigation {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    text-align: center;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .progress-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .nav-actions {
+        flex-direction: column;
+    }
+    
+    .nav-actions .btn {
+        width: 100%;
+    }
+}

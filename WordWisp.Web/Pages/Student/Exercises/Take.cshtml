@@ -1,0 +1,365 @@
+@page "/student/exercises/{id:int}/take"
+@model TakeExerciseModel
+@{
+    ViewData["Title"] = $"Выполнение: {Model.Exercise?.Title}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/take-exercise.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Exercise != null && Model.CanStart)
+    {
+        <!-- Заголовок упражнения -->
+        <div class="exercise-header">
+            <div class="exercise-info">
+                <h1>@Model.Exercise.Title</h1>
+                @if (!string.IsNullOrEmpty(Model.Exercise.Description))
+                {
+                    <p class="exercise-description">@Model.Exercise.Description</p>
+                }
+            </div>
+            <div class="exercise-timer">
+                <div class="timer-display" id="timer">
+                    <i class="bi bi-clock"></i>
+                    <span id="timeLeft">@Model.Exercise.TimeLimit:00</span>
+                </div>
+                <div class="timer-info">
+                    <small>Время на выполнение: @Model.Exercise.TimeLimit минут</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Прогресс выполнения -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Вопрос 1 из @Model.Exercise.Questions.Count</span>
+            </div>
+        </div>
+
+        <form method="post" id="exerciseForm" class="exercise-form">
+            <input type="hidden" asp-for="Input.ExerciseId" />
+            <input type="hidden" asp-for="Input.AttemptId" />
+
+            <div class="questions-container">
+                @for (int i = 0; i < Model.Exercise.Questions.Count; i++)
+                {
+                    var question = Model.Exercise.Questions[i];
+                    
+                    <div class="question-card" data-question-index="@i" style="@(i == 0 ? "display: block;" : "display: none;")">
+                        <div class="question-header">
+                            <div class="question-number">
+                                Вопрос @(i + 1) из @Model.Exercise.Questions.Count
+                            </div>
+                            <div class="question-points">
+                                @question.Points баллов
+                            </div>
+                        </div>
+
+                        <div class="question-content">
+                            <div class="question-text">
+                                @question.Question
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(question.QuestionImagePath))
+                            {
+                                <div class="question-media">
+                                    <img src="@question.QuestionImagePath" alt="Изображение к вопросу" class="question-image" />
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(question.QuestionAudioPath))
+                            {
+                                <div class="question-media">
+                                    <audio controls class="question-audio">
+                                        <source src="@question.QuestionAudioPath" type="audio/mpeg">
+                                        Ваш браузер не поддерживает аудио элемент.
+                                    </audio>
+                                </div>
+                            }
+
+                            <input type="hidden" asp-for="Input.Answers[i].QuestionId" value="@question.Id" />
+
+                            <div class="answers-container">
+                                @if (Model.Exercise.ExerciseType == WordWisp.Web.Models.Enums.ExerciseType.MultipleChoice || 
+                                     Model.Exercise.ExerciseType == WordWisp.Web.Models.Enums.ExerciseType.TrueFalse)
+                                {
+                                    @for (int j = 0; j < question.Answers.Count; j++)
+                                    {
+                                        var answer = question.Answers[j];
+                                        <div class="answer-option">
+                                            <input type="checkbox" 
+                                                   id="answer_@(i)_@(j)" 
+                                                   name="Input.Answers[@i].SelectedAnswerIds" 
+                                                   value="@answer.Id" 
+                                                   class="answer-checkbox" />
+                                            <label for="answer_@(i)_@(j)" class="answer-label">
+                                                @if (!string.IsNullOrEmpty(answer.AnswerImagePath))
+                                                {
+                                                    <img src="@answer.AnswerImagePath" alt="@answer.AnswerText" class="answer-image" />
+                                                }
+                                                <span class="answer-text">@answer.AnswerText</span>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                else if (Model.Exercise.ExerciseType == WordWisp.Web.Models.Enums.ExerciseType.FillInTheBlank)
+                                {
+                                    <div class="text-answer">
+                                        <label for="textAnswer_@i" class="form-label">Ваш ответ:</label>
+                                        <input type="text" 
+                                               id="textAnswer_@i" 
+                                               asp-for="Input.Answers[i].TextAnswer" 
+                                               class="form-control" 
+                                               placeholder="Введите ваш ответ" />
+                                    </div>
+                                }
+                                else if (Model.Exercise.ExerciseType == WordWisp.Web.Models.Enums.ExerciseType.Essay)
+                                {
+                                    <div class="text-answer">
+                                        <label for="essayAnswer_@i" class="form-label">Ваш ответ:</label>
+                                        <textarea id="essayAnswer_@i" 
+                                                  asp-for="Input.Answers[i].TextAnswer" 
+                                                  class="form-control" 
+                                                  rows="5" 
+                                                  placeholder="Напишите развернутый ответ"></textarea>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="question-navigation">
+                            @if (i > 0)
+                            {
+                                <button type="button" class="btn btn-secondary" onclick="previousQuestion()">
+                                    <i class="bi bi-arrow-left"></i> Предыдущий
+                                </button>
+                            }
+                            
+                            <div class="question-indicators">
+                                @for (int k = 0; k < Model.Exercise.Questions.Count; k++)
+                                {
+                                    <span class="question-indicator @(k == i ? "active" : "")" 
+                                          onclick="goToQuestion(@k)">@(k + 1)</span>
+                                }
+                            </div>
+
+                            @if (i < Model.Exercise.Questions.Count - 1)
+                            {
+                                <button type="button" class="btn btn-primary" onclick="nextQuestion()">
+                                    Следующий <i class="bi bi-arrow-right"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-success" onclick="showSubmitConfirmation()">
+                                    <i class="bi bi-check-circle"></i> Завершить
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </form>
+    }
+    else if (!Model.CanStart)
+    {
+        <div class="empty-state">
+            <div class="empty-content">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h3>Нельзя начать упражнение</h3>
+                <p>Возможно, вы исчерпали все попытки или упражнение недоступно</p>
+                <a href="/student/topics/@Model.Exercise?.TopicId/exercises" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Назад к упражнениям
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Модальное окно подтверждения отправки -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Завершить упражнение?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите завершить упражнение и отправить ответы?</p>
+                <p class="text-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    После отправки изменить ответы будет нельзя.
+                </p>
+                <div id="unansweredQuestions" class="mt-3" style="display: none;">
+                    <p class="text-danger">
+                        <strong>Внимание!</strong> Есть неотвеченные вопросы:
+                    </p>
+                    <ul id="unansweredList"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Продолжить</button>
+                <button type="button" class="btn btn-success" onclick="submitExercise()">
+                    <i class="bi bi-check-circle"></i> Завершить упражнение
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentQuestion = 0;
+        let totalQuestions = @Model.Exercise?.Questions.Count ?? 0;
+        let timeLeft = @((Model.Exercise?.TimeLimit ?? 30) * 60); // в секундах
+        let timerInterval;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer();
+            updateProgress();
+            
+            // Предотвращаем случайное закрытие страницы
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                e.returnValue = 'Вы уверены, что хотите покинуть страницу? Прогресс может быть потерян.';
+            });
+        });
+
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Время вышло! Упражнение будет автоматически отправлено.');
+                    submitExercise();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timeLeft').textContent = display;
+            
+            // Меняем цвет при малом времени
+            const timerElement = document.getElementById('timer');
+            if (timeLeft <= 300) { // 5 минут
+                timerElement.classList.add('timer-warning');
+            }
+            if (timeLeft <= 60) { // 1 минута
+                timerElement.classList.add('timer-danger');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            showQuestion(index);
+        }
+
+        function showQuestion(index) {
+            // Скрываем текущий вопрос
+            document.querySelector(`[data-question-index="${currentQuestion}"]`).style.display = 'none';
+            
+            // Показываем новый вопрос
+            currentQuestion = index;
+            document.querySelector(`[data-question-index="${currentQuestion}"]`).style.display = 'block';
+            
+            // Обновляем индикаторы
+            document.querySelectorAll('.question-indicator').forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === currentQuestion);
+            });
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Вопрос ${currentQuestion + 1} из ${totalQuestions}`;
+        }
+
+        function showSubmitConfirmation() {
+            // Проверяем неотвеченные вопросы
+            const unanswered = checkUnansweredQuestions();
+            
+            if (unanswered.length > 0) {
+                const unansweredDiv = document.getElementById('unansweredQuestions');
+                const unansweredList = document.getElementById('unansweredList');
+                
+                unansweredList.innerHTML = '';
+                unanswered.forEach(q => {
+                    const li = document.createElement('li');
+                    li.textContent = `Вопрос ${q}`;
+                    unansweredList.appendChild(li);
+                });
+                
+                unansweredDiv.style.display = 'block';
+            } else {
+                document.getElementById('unansweredQuestions').style.display = 'none';
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('submitModal'));
+            modal.show();
+        }
+
+        function checkUnansweredQuestions() {
+            const unanswered = [];
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                const questionCard = document.querySelector(`[data-question-index="${i}"]`);
+                const checkboxes = questionCard.querySelectorAll('input[type="checkbox"]:checked');
+                const textInputs = questionCard.querySelectorAll('input[type="text"], textarea');
+                
+                let hasAnswer = checkboxes.length > 0;
+                
+                if (!hasAnswer && textInputs.length > 0) {
+                    hasAnswer = Array.from(textInputs).some(input => input.value.trim() !== '');
+                }
+                
+                if (!hasAnswer) {
+                    unanswered.push(i + 1);
+                }
+            }
+            
+            return unanswered;
+        }
+
+        function submitExercise() {
+            clearInterval(timerInterval);
+            
+            // Убираем предупреждение о закрытии страницы
+            window.removeEventListener('beforeunload', function() {});
+            
+            document.getElementById('exerciseForm').submit();
+        }
+    </script>
+}

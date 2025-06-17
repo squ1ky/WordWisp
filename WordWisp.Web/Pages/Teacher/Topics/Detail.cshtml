@@ -1,0 +1,328 @@
+@page "/teacher/topics/{id:int}"
+@using WordWisp.Web.Models.Enums
+@using WordWisp.Web.Models.DTOs.Materials
+@model TeacherTopicDetailModel
+@{
+    ViewData["Title"] = Model.Topic?.Title ?? "Топик";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/topic-detail.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (Model.Topic != null)
+    {
+        <!-- Заголовок топика -->
+        <div class="topic-header">
+            <div class="header-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/teacher/topics">Мои топики</a></li>
+                        <li class="breadcrumb-item active">@Model.Topic.Title</li>
+                    </ol>
+                </nav>
+                
+                <div class="title-row">
+                    <h1>@Model.Topic.Title</h1>
+                    <div class="topic-status">
+                        @if (Model.Topic.IsPublic)
+                        {
+                            <span class="badge badge-success">
+                                <i class="bi bi-globe"></i> Публичный
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">
+                                <i class="bi bi-lock"></i> Приватный
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Topic.Description))
+                {
+                    <p class="topic-description">@Model.Topic.Description</p>
+                }
+                
+                <div class="topic-meta">
+                    <span class="date">
+                        <i class="bi bi-calendar"></i> Создан @Model.Topic.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"))
+                    </span>
+                    <span class="stats">
+                        <i class="bi bi-file-earmark-text"></i> @Model.Topic.MaterialsCount материалов
+                    </span>
+                    <span class="stats">
+                        <i class="bi bi-puzzle"></i> @Model.Topic.ExercisesCount упражнений
+                    </span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/teacher/topics/@Model.Topic.Id/edit" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-plus"></i> Добавить
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/teacher/topics/@Model.Topic.Id/materials/create">
+                            <i class="bi bi-file-earmark-text"></i> Материал
+                        </a></li>
+                        <li><a class="dropdown-item" href="/teacher/topics/@Model.Topic.Id/exercises/create">
+                            <i class="bi bi-puzzle"></i> Упражнение
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-eye"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Просмотры</h3>
+                        <p class="stat-value">
+                            <span class="number">0</span>
+                            <small>Функция в разработке</small>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Активные студенты</h3>
+                        <p class="stat-value">
+                            <span class="number">0</span>
+                            <small>Функция в разработке</small>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Средний прогресс</h3>
+                        <p class="stat-value">
+                            <span class="number">0%</span>
+                            <small>Функция в разработке</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Материалы -->
+        <div class="content-section">
+            <div class="section-header">
+                <h3><i class="bi bi-file-earmark-text"></i> Материалы</h3>
+                <a href="/teacher/topics/@Model.Topic.Id/materials" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-gear"></i> Управление материалами
+                </a>
+            </div>
+            
+            @if (Model.Materials.Any())
+            {
+                <div class="materials-list teacher-materials">
+                    @foreach (var material in Model.Materials.OrderBy(m => m.Order).Take(3))
+                    {
+                        <div class="material-item teacher-item" data-material-type="@material.MaterialType.ToString().ToLower()">
+                            <div class="material-icon">
+                                @switch (material.MaterialType)
+                                {
+                                    case WordWisp.Web.Models.Enums.MaterialType.Text:
+                                        <i class="bi bi-file-text"></i>
+                                        break;
+                                    case WordWisp.Web.Models.Enums.MaterialType.Image:
+                                        <i class="bi bi-image"></i>
+                                        break;
+                                    case WordWisp.Web.Models.Enums.MaterialType.Audio:
+                                        <i class="bi bi-music-note"></i>
+                                        break;
+                                    case WordWisp.Web.Models.Enums.MaterialType.Video:
+                                        <i class="bi bi-play-circle"></i>
+                                        break;
+                                }
+                            </div>
+                            <div class="material-content">
+                                <h4>@material.Title</h4>
+                                @if (!string.IsNullOrEmpty(material.Description))
+                                {
+                                    <p>@material.Description</p>
+                                }
+                                <div class="material-meta">
+                                    <span class="material-type">@GetMaterialTypeText(material.MaterialType)</span>
+                                    @if (!material.IsPublic)
+                                    {
+                                        <span class="badge badge-secondary">Приватный</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="material-actions">
+                                <a href="/teacher/materials/@material.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Просмотр
+                                </a>
+                                <a href="/teacher/materials/@material.Id/edit" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Редактировать
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                @if (Model.Materials.Count > 3)
+                {
+                    <div class="text-center mt-3">
+                        <a href="/teacher/topics/@Model.Topic.Id/materials" class="btn btn-outline-primary">
+                            <i class="bi bi-eye"></i> Показать все материалы (@Model.Materials.Count)
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <p>Материалы пока не добавлены</p>
+                    <a href="/teacher/topics/@Model.Topic.Id/materials/create" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Добавить первый материал
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Упражнения -->
+        <div class="content-section">
+            <div class="section-header">
+                <h3><i class="bi bi-puzzle"></i> Упражнения</h3>
+                <a href="/teacher/topics/@Model.Topic.Id/exercises/create" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-plus"></i> Добавить упражнение
+                </a>
+            </div>
+            
+            @if (Model.Exercises.Any())
+            {
+                <div class="exercises-list">
+                    @foreach (var exercise in Model.Exercises.OrderBy(e => e.Order))
+                    {
+                        <div class="exercise-item teacher-item">
+                            <div class="exercise-icon">
+                                <i class="bi bi-puzzle"></i>
+                            </div>
+                            <div class="exercise-content">
+                                <h4>@exercise.Title</h4>
+                                @if (!string.IsNullOrEmpty(exercise.Description))
+                                {
+                                    <p>@exercise.Description</p>
+                                }
+                                <span class="exercise-type">@GetExerciseTypeText(exercise.ExerciseType)</span>
+                            </div>
+                            <div class="exercise-actions">
+                                <a href="/teacher/exercises/@exercise.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Просмотр
+                                </a>
+                                <a href="/teacher/exercises/@exercise.Id/edit" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Редактировать
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteExercise(@exercise.Id)">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-puzzle"></i>
+                    <p>Упражнения пока не добавлены</p>
+                    <a href="/teacher/topics/@Model.Topic.Id/exercises/create" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Добавить первое упражнение
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-3">Загрузка топика...</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function deleteMaterial(materialId) {
+            if (confirm('Вы уверены, что хотите удалить этот материал?')) {
+                // Реализация удаления материала
+                alert('Функция удаления материала в разработке');
+            }
+        }
+
+        function deleteExercise(exerciseId) {
+            if (confirm('Вы уверены, что хотите удалить это упражнение?')) {
+                // Реализация удаления упражнения
+                alert('Функция удаления упражнения в разработке');
+            }
+        }
+    </script>
+}
+
+@functions {
+    string GetMaterialTypeText(WordWisp.Web.Models.Enums.MaterialType type)
+    {
+        return type switch
+        {
+            WordWisp.Web.Models.Enums.MaterialType.Text => "Текст",
+            WordWisp.Web.Models.Enums.MaterialType.Image => "Изображение",
+            WordWisp.Web.Models.Enums.MaterialType.Audio => "Аудио",
+            WordWisp.Web.Models.Enums.MaterialType.Video => "Видео",
+            _ => "Неизвестно"
+        };
+    }
+
+    string GetExerciseTypeText(WordWisp.Web.Models.Enums.ExerciseType type)
+    {
+        return type switch
+        {
+            WordWisp.Web.Models.Enums.ExerciseType.MultipleChoice => "Множественный выбор",
+            WordWisp.Web.Models.Enums.ExerciseType.FillInTheBlank => "Заполнить пропуски",
+            WordWisp.Web.Models.Enums.ExerciseType.TrueFalse => "Верно/Неверно",
+            WordWisp.Web.Models.Enums.ExerciseType.Matching => "Сопоставление",
+            WordWisp.Web.Models.Enums.ExerciseType.Essay => "Эссе",
+            _ => "Неизвестно"
+        };
+    }
+}

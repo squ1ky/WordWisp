@@ -1,0 +1,312 @@
+@page "/teacher/topics/{topicId:int}/materials"
+@model MaterialsIndexModel
+@{
+    ViewData["Title"] = "Материалы топика";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/materials.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (Model.Topic != null)
+    {
+        <div class="page-header">
+            <div class="header-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/teacher/topics">Мои топики</a></li>
+                        <li class="breadcrumb-item"><a href="/teacher/topics/@Model.Topic.Id">@Model.Topic.Title</a></li>
+                        <li class="breadcrumb-item active">Материалы</li>
+                    </ol>
+                </nav>
+                
+                <h1><i class="bi bi-file-earmark-text"></i> Материалы топика</h1>
+                <p class="text-muted">Управление учебными материалами для "@Model.Topic.Title"</p>
+            </div>
+            <div class="header-actions">
+                <a href="/teacher/topics/@Model.Topic.Id/materials/create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Добавить материал
+                </a>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (Model.Materials.Any())
+    {
+        <div class="materials-container">
+            @foreach (var material in Model.Materials.OrderBy(m => m.Order).ThenBy(m => m.CreatedAt))
+            {
+                <div class="material-card" data-material-type="@material.MaterialType.ToString().ToLower()">
+                    <div class="material-header">
+                        <div class="material-type-icon">
+                            @switch (material.MaterialType)
+                            {
+                                case WordWisp.Web.Models.Enums.MaterialType.Text:
+                                    <i class="bi bi-file-text"></i>
+                                    break;
+                                case WordWisp.Web.Models.Enums.MaterialType.Image:
+                                    <i class="bi bi-image"></i>
+                                    break;
+                                case WordWisp.Web.Models.Enums.MaterialType.Audio:
+                                    <i class="bi bi-music-note"></i>
+                                    break;
+                                case WordWisp.Web.Models.Enums.MaterialType.Video:
+                                    <i class="bi bi-play-circle"></i>
+                                    break;
+                            }
+                        </div>
+                        <div class="material-info">
+                            <h3>@material.Title</h3>
+                            <div class="material-meta">
+                                <span class="material-type">@GetMaterialTypeText(material.MaterialType)</span>
+                                <span class="material-order">Порядок: @material.Order</span>
+                                @if (!material.IsPublic)
+                                {
+                                    <span class="badge badge-secondary">Приватный</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success">Публичный</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="material-actions">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/teacher/materials/@material.Id">
+                                        <i class="bi bi-eye"></i> Просмотр
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/teacher/materials/@material.Id/edit">
+                                        <i class="bi bi-pencil"></i> Редактировать
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete(@material.Id, '@material.Title')">
+                                        <i class="bi bi-trash"></i> Удалить
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(material.Description))
+                    {
+                        <div class="material-description">
+                            @material.Description
+                        </div>
+                    }
+
+                    <div class="material-preview">
+                        @switch (material.MaterialType)
+                        {
+                            case WordWisp.Web.Models.Enums.MaterialType.Text:
+                                <div class="text-preview">
+                                    @if (!string.IsNullOrEmpty(material.Content))
+                                    {
+                                        <p>@(material.Content.Length > 200 ? material.Content.Substring(0, 200) + "..." : material.Content)</p>
+                                    }
+                                </div>
+                                break;
+                            case WordWisp.Web.Models.Enums.MaterialType.Image:
+                                @if (!string.IsNullOrEmpty(material.FilePath))
+                                {
+                                    <div class="image-preview">
+                                        <img src="@GetFileUrl(material.FilePath)" alt="@material.Title" />
+                                    </div>
+                                }
+                                break;
+                            case WordWisp.Web.Models.Enums.MaterialType.Audio:
+                                @if (!string.IsNullOrEmpty(material.FilePath))
+                                {
+                                    <div class="audio-preview">
+                                        <audio controls>
+                                            <source src="@GetFileUrl(material.FilePath)" type="@material.MimeType">
+                                            Ваш браузер не поддерживает аудио элемент.
+                                        </audio>
+                                    </div>
+                                }
+                                break;
+                            case WordWisp.Web.Models.Enums.MaterialType.Video:
+                                @if (!string.IsNullOrEmpty(material.ExternalUrl))
+                                {
+                                    <div class="video-preview">
+                                        <div class="video-link">
+                                            <i class="bi bi-play-circle"></i>
+                                            <span>@material.ExternalUrl</span>
+                                        </div>
+                                    </div>
+                                }
+                                break;
+                        }
+                    </div>
+
+                    <div class="material-footer">
+                        <small class="text-muted">
+                            Создан: @material.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            @if (material.UpdatedAt.HasValue)
+                            {
+                                <span> • Обновлен: @material.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <h3>Материалы пока не добавлены</h3>
+            <p class="text-muted">Добавьте первый материал для этого топика</p>
+            <div class="empty-actions">
+                <a href="/teacher/topics/@Model.Topic?.Id/materials/create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Добавить материал
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить материал <strong id="materialTitle"></strong>?</p>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Это действие нельзя отменить.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetMaterialTypeText(WordWisp.Web.Models.Enums.MaterialType type)
+    {
+        return type switch
+        {
+            WordWisp.Web.Models.Enums.MaterialType.Text => "Текст",
+            WordWisp.Web.Models.Enums.MaterialType.Image => "Изображение",
+            WordWisp.Web.Models.Enums.MaterialType.Audio => "Аудио",
+            WordWisp.Web.Models.Enums.MaterialType.Video => "Видео",
+            _ => "Неизвестно"
+        };
+    }
+
+    string GetFileUrl(string filePath)
+    {
+        var baseUrl = "http://localhost:5118";
+        return $"{baseUrl}/{filePath}";
+    }
+}
+
+@section Scripts {
+    <script>
+        let materialIdToDelete = null;
+
+        function confirmDelete(materialId, materialTitle) {
+            materialIdToDelete = materialId;
+            document.getElementById('materialTitle').textContent = materialTitle;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!materialIdToDelete) return;
+
+            const token = '@Model.AuthToken';
+            if (!token) {
+                alert('Сессия истекла. Пожалуйста, войдите в систему заново.');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            try {
+                const apiBaseUrl = "http://localhost:5118";
+                const response = await fetch(`${apiBaseUrl}/api/materials/${materialIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    sessionStorage.setItem('successMessage', 'Материал успешно удален');
+                    window.location.reload();
+                } else if (response.status === 401) {
+                    alert('Сессия истекла. Пожалуйста, войдите в систему заново.');
+                    window.location.href = '/auth/login';
+                } else {
+                    let errorMessage = 'Ошибка при удалении материала';
+                    try {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    } catch (parseError) {
+                        console.warn('Could not parse error response:', parseError);
+                    }
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Не удалось подключиться к серверу');
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            modal.hide();
+        });
+
+        // Показываем сообщение об успехе если есть
+        window.addEventListener('load', function() {
+            const successMessage = sessionStorage.getItem('successMessage');
+            if (successMessage) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle"></i> ${successMessage}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.page-header').nextSibling);
+                sessionStorage.removeItem('successMessage');
+            }
+        });
+    </script>
+}

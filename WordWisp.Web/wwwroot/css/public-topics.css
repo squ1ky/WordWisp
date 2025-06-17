@@ -1,0 +1,120 @@
+.public-card {
+    border-left: 4px solid var(--success-color);
+}
+
+.public-card .topic-header h3 {
+    color: var(--text-primary);
+}
+
+.info-banner {
+    background: linear-gradient(135deg, var(--primary-color), #6366f1);
+    border-radius: var(--border-radius);
+    padding: 32px;
+    margin-top: 40px;
+    color: white;
+    text-align: center;
+}
+
+.info-content h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.info-content p {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    opacity: 0.9;
+}
+
+.info-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.info-actions .btn {
+    min-width: 140px;
+}
+
+.info-actions .btn-outline-primary {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.info-actions .btn-outline-primary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .info-banner {
+        padding: 24px 16px;
+    }
+    
+    .info-content h4 {
+        font-size: 1.25rem;
+    }
+    
+    .info-content p {
+        font-size: 1rem;
+    }
+    
+    .info-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .info-actions .btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+.auth-prompt {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--border-radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    color: white;
+    text-align: center;
+}
+
+.prompt-content h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.prompt-content p {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    opacity: 0.9;
+}
+
+.prompt-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.prompt-actions .btn {
+    min-width: 140px;
+}
+
+.prompt-actions .btn-outline-primary {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.prompt-actions .btn-outline-primary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
