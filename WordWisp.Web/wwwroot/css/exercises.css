@@ -1,0 +1,630 @@
+/* Форма упражнений */
+.exercise-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.section-header {
+    background: var(--background-secondary);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-content {
+    padding: 20px;
+}
+
+/* Карточки вопросов */
+.question-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 16px;
+    background: white;
+}
+
+.question-header {
+    background: var(--background-secondary);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.question-content {
+    padding: 16px;
+}
+
+/* Секция ответов */
+.answers-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.answers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.answers-header .form-label {
+    margin: 0;
+    font-weight: 600;
+}
+
+.answers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.answer-item {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 12px;
+}
+
+.answer-content {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.answer-checkbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.answer-checkbox .form-check-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.answer-text {
+    flex: 1;
+}
+
+.answer-order {
+    width: 80px;
+}
+
+.answer-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* Действия формы */
+.form-actions {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .answer-content {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .answer-checkbox {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+
+/* Анимации */
+.question-card {
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+.answer-item {
+    transition: all 0.2s ease;
+}
+
+.answer-item:hover {
+    background: #f8f9fa;
+}
+
+/* Состояния кнопок */
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+.question-header .btn-danger:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Сетка упражнений */
+.exercises-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Карточка упражнения */
+.exercise-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.exercise-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.exercise-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.exercise-title h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.exercise-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.exercise-meta span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.exercise-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+.status-badge.inactive {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+.exercise-description {
+    padding: 0 20px 16px 20px;
+}
+
+.exercise-description p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.exercise-stats {
+    padding: 16px 20px;
+    background: var(--background-secondary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.stat-item i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.exercise-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.exercise-dates {
+    flex: 1;
+}
+
+.exercise-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.exercise-actions .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+/* Пустое состояние */
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    text-align: center;
+}
+
+.empty-content {
+    max-width: 400px;
+}
+
+.empty-content i {
+    font-size: 4rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.empty-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-content p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .exercises-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .exercise-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .exercise-footer {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .exercise-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .exercise-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Детали упражнения */
+.exercise-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.details-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.details-section .section-header {
+    background: var(--background-secondary);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.details-section .section-content {
+    padding: 20px;
+}
+
+/* Настройки упражнения */
+.exercise-description {
+    margin-bottom: 20px;
+}
+
+.exercise-description h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.exercise-description p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--background-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.setting-item i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.setting-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.setting-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Статистика */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.stat-card .stat-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.stat-card .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty-stats {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-stats i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.empty-stats h4 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+/* Предпросмотр вопросов */
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.question-preview {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.question-header {
+    background: var(--background-secondary);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.question-number {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.question-points {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.question-text {
+    padding: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.answers-preview {
+    padding: 0 16px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.answer-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--background-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.answer-preview.correct {
+    background: rgba(25, 135, 84, 0.1);
+    border-color: rgba(25, 135, 84, 0.3);
+    color: #198754;
+}
+
+.answer-preview i {
+    flex-shrink: 0;
+}
+
+.answer-preview.correct i {
+    color: #198754;
+}
+
+.answer-preview:not(.correct) i {
+    color: var(--text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .settings-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .question-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,334 @@
+/* Общая статистика */
+.results-summary {
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.summary-card.passed {
+    border-left: 4px solid var(--success-color);
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.05), white);
+}
+
+.summary-card.failed {
+    border-left: 4px solid var(--danger-color);
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.05), white);
+}
+
+.summary-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.summary-card.passed .summary-icon {
+    color: var(--success-color);
+}
+
+.summary-card.failed .summary-icon {
+    color: var(--danger-color);
+}
+
+.summary-content h2 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+}
+
+.summary-score {
+    font-size: 1.2rem;
+    margin: 4px 0;
+    color: var(--text-primary);
+}
+
+.summary-requirement {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Статистика */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* История попыток */
+.attempts-section {
+    margin-bottom: 30px;
+}
+
+.attempts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.attempt-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.attempt-card.passed {
+    border-left: 4px solid var(--success-color);
+}
+
+.attempt-card.failed {
+    border-left: 4px solid var(--danger-color);
+}
+
+.attempt-header {
+    padding: 16px 20px;
+    background: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.attempt-info h4 {
+    margin: 0 0 4px 0;
+    color: var(--text-primary);
+}
+
+.attempt-date {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.passed {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+.status-badge.failed {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.status-badge.incomplete {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.attempt-stats {
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 16px;
+}
+
+.attempt-stat {
+    text-align: center;
+}
+
+.attempt-stat .stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.attempt-stat .stat-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.attempt-actions {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color);
+    background: var(--background-secondary);
+    text-align: right;
+}
+
+/* Детали попытки */
+.attempt-details {
+    margin-bottom: 30px;
+}
+
+.attempt-score {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.attempt-score.passed {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.attempt-score.failed {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.questions-review {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.question-review {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.question-header {
+    padding: 12px 16px;
+    background: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-number {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.question-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.result-badge.correct {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.result-badge.incorrect {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.result-badge.unanswered {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.points {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.question-content {
+    padding: 16px;
+}
+
+.question-text {
+    margin: 0 0 12px 0;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.user-answer {
+    padding: 8px 12px;
+    background: var(--background-secondary);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .summary-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .attempt-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .question-result {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-end;
+    }
+    
+    .stats-grid,
+    .attempt-stats {
+        grid-template-columns: 1fr;
+    }
+}

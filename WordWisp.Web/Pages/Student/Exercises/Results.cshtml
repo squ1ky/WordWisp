@@ -1,0 +1,263 @@
+@page "/student/exercises/{id:int}/results"
+@model ExerciseResultsModel
+@{
+    ViewData["Title"] = $"Результаты: {Model.Exercise?.Title}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/results.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>
+                    <i class="bi bi-graph-up"></i>
+                    Результаты упражнения
+                </h1>
+                <p class="header-subtitle">
+                    @Model.Exercise?.Title
+                </p>
+            </div>
+            <div class="header-actions">
+                <a href="/student/topics/@Model.Exercise?.TopicId/exercises" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> К упражнениям
+                </a>
+                @if (Model.Results != null && Model.Results.AttemptsUsed < Model.Exercise?.MaxAttempts)
+                {
+                    <a href="/student/exercises/@Model.Exercise?.Id/take" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat"></i> Пройти еще раз
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Results != null && Model.Exercise != null)
+    {
+        <!-- Общая статистика -->
+        <div class="results-summary">
+            <div class="summary-card @(Model.Results.IsPassed ? "passed" : "failed")">
+                <div class="summary-icon">
+                    @if (Model.Results.IsPassed)
+                    {
+                        <i class="bi bi-check-circle-fill"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-x-circle-fill"></i>
+                    }
+                </div>
+                <div class="summary-content">
+                    <h2>@(Model.Results.IsPassed ? "Упражнение сдано!" : "Упражнение не сдано")</h2>
+                    <p class="summary-score">Лучший результат: <strong>@Model.Results.BestScore.ToString("F1")%</strong></p>
+                    <p class="summary-requirement">Требуется: @Model.Exercise.PassingScore% для сдачи</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value">@Model.Results.AttemptsUsed</span>
+                        <span class="stat-label">из @Model.Exercise.MaxAttempts попыток</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value">@Model.Results.BestScore.ToString("F1")%</span>
+                        <span class="stat-label">лучший результат</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value">@Model.Exercise.Questions.Count</span>
+                        <span class="stat-label">вопросов</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- История попыток -->
+        <div class="attempts-section">
+            <div class="section-header">
+                <h3><i class="bi bi-clock-history"></i> История попыток</h3>
+            </div>
+            
+            @if (Model.Results.Attempts.Any())
+            {
+                <div class="attempts-list">
+                    @foreach (var attempt in Model.Results.Attempts.OrderByDescending(a => a.StartedAt))
+                    {
+                        <div class="attempt-card @(attempt.IsPassed ? "passed" : "failed")">
+                            <div class="attempt-header">
+                                <div class="attempt-info">
+                                    <h4>Попытка @(Model.Results.Attempts.OrderBy(a => a.StartedAt).ToList().IndexOf(attempt) + 1)</h4>
+                                    <span class="attempt-date">@attempt.StartedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="attempt-status">
+                                    @if (attempt.IsPassed)
+                                    {
+                                        <span class="status-badge passed">
+                                            <i class="bi bi-check-circle"></i> Сдано
+                                        </span>
+                                    }
+                                    else if (attempt.IsCompleted)
+                                    {
+                                        <span class="status-badge failed">
+                                            <i class="bi bi-x-circle"></i> Не сдано
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge incomplete">
+                                            <i class="bi bi-clock"></i> Не завершено
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="attempt-stats">
+                                <div class="attempt-stat">
+                                    <span class="stat-label">Результат</span>
+                                    <span class="stat-value">@attempt.Score.ToString("F1")%</span>
+                                </div>
+                                <div class="attempt-stat">
+                                    <span class="stat-label">Время</span>
+                                    <span class="stat-value">@TimeSpan.FromSeconds(attempt.TimeSpent).ToString(@"mm\:ss")</span>
+                                </div>
+                                @if (attempt.CompletedAt.HasValue)
+                                {
+                                    <div class="attempt-stat">
+                                        <span class="stat-label">Завершено</span>
+                                        <span class="stat-value">@attempt.CompletedAt.Value.ToString("HH:mm")</span>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (attempt.IsCompleted)
+                            {
+                                <div class="attempt-actions">
+                                    <a href="/student/exercises/@Model.Exercise.Id/results?attemptId=@attempt.Id" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> Подробности
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-clock-history"></i>
+                    <p>Попыток пока нет</p>
+                </div>
+            }
+        </div>
+
+        <!-- Детали текущей попытки -->
+        @if (Model.CurrentAttempt != null)
+        {
+            <div class="attempt-details">
+                <div class="section-header">
+                    <h3><i class="bi bi-list-check"></i> Детали попытки</h3>
+                    <span class="attempt-score @(Model.CurrentAttempt.IsPassed ? "passed" : "failed")">
+                        @Model.CurrentAttempt.Score.ToString("F1")%
+                    </span>
+                </div>
+                
+                <div class="questions-review">
+                    @for (int i = 0; i < Model.Exercise.Questions.Count; i++)
+                    {
+                        var question = Model.Exercise.Questions[i];
+                        var userAnswer = Model.CurrentAttempt.UserAnswers.FirstOrDefault(a => a.QuestionId == question.Id);
+                        
+                        <div class="question-review">
+                            <div class="question-header">
+                                <span class="question-number">Вопрос @(i + 1)</span>
+                                <div class="question-result">
+                                    @if (userAnswer?.IsCorrect == true)
+                                    {
+                                        <span class="result-badge correct">
+                                            <i class="bi bi-check-circle"></i> Правильно
+                                        </span>
+                                    }
+                                    else if (userAnswer?.IsCorrect == false)
+                                    {
+                                        <span class="result-badge incorrect">
+                                            <i class="bi bi-x-circle"></i> Неправильно
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="result-badge unanswered">
+                                            <i class="bi bi-dash-circle"></i> Не отвечено
+                                        </span>
+                                    }
+                                    <span class="points">@(userAnswer?.PointsEarned ?? 0)/@question.Points баллов</span>
+                                </div>
+                            </div>
+                            
+                            <div class="question-content">
+                                <p class="question-text">@question.Question</p>
+                                
+                                @if (userAnswer != null)
+                                {
+                                    <div class="user-answer">
+                                        <strong>Ваш ответ:</strong>
+                                        @if (!string.IsNullOrEmpty(userAnswer.AnswerText))
+                                        {
+                                            <span>@userAnswer.AnswerText</span>
+                                        }
+                                        else if (userAnswer.SelectedAnswerId.HasValue)
+                                        {
+                                            var selectedAnswer = question.Answers.FirstOrDefault(a => a.Id == userAnswer.SelectedAnswerId);
+                                            <span>@selectedAnswer?.AnswerText</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Ответ не дан</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-content">
+                <i class="bi bi-graph-up"></i>
+                <h3>Результаты недоступны</h3>
+                <p>Возможно, вы еще не проходили это упражнение</p>
+                <a href="/student/exercises/@Model.Exercise?.Id/take" class="btn btn-primary">
+                    <i class="bi bi-play-circle"></i> Пройти упражнение
+                </a>
+            </div>
+        </div>
+    }
+</div>
