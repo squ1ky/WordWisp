@@ -16,10 +16,10 @@ namespace WordWisp.API.Models.Requests.Exercises.Student
         [Required]
         public int AttemptId { get; set; }
 
-        public List<SubmitAnswerRequest> Answers { get; set; } = new();
+        public List<SubmitExerciseAnswerRequest> Answers { get; set; } = new();
     }
 
-    public class SubmitAnswerRequest
+    public class SubmitExerciseAnswerRequest
     {
         [Required]
         public int QuestionId { get; set; }
