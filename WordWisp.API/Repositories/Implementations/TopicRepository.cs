@@ -90,6 +90,12 @@ namespace WordWisp.API.Repositories.Implementations
             return await _context.Topics.CountAsync(t => t.CreatedBy == teacherId);
         }
 
+        public async Task<int> GetTotalMaterialsCountByTeacherAsync(int teacherId)
+        {
+            return await _context.Materials
+                .CountAsync(m => m.Topic.CreatedBy == teacherId);
+        }
+
         // CRUD операции для преподавателей
         public async Task<Topic> CreateAsync(Topic topic)
         {

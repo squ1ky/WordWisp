@@ -128,6 +128,25 @@ namespace WordWisp.API.Data.Repositories.Implementations
             return lastTest?.CompletedAt;
         }
 
+        public async Task<string?> GetLastTestLevelAsync(int userId)
+        {
+            var lastTest = await _context.LevelTests
+                .Where(t => t.UserId == userId && t.Status == TestStatus.Completed)
+                .OrderByDescending(t => t.CompletedAt)
+                .FirstOrDefaultAsync();
+
+            return lastTest?.DeterminedLevel?.ToString();
+        }
+
+        public async Task<int?> GetLastTestIdAsync(int userId)
+        {
+            var lastTest = await _context.LevelTests
+                .Where(t => t.UserId == userId && t.Status == TestStatus.Completed)
+                .OrderByDescending(t => t.CompletedAt)
+                .FirstOrDefaultAsync();
+
+            return lastTest?.Id;
+        }
         public async Task<Dictionary<EnglishLevel, List<LevelTestQuestion>>> GetQuestionsBySectionGroupedByLevelAsync(QuestionSection section)
         {
             var questions = await _context.LevelTestQuestions
