@@ -1,0 +1,184 @@
+@page "/student/materials/{id:int}"
+@model StudentMaterialDetailModel
+@using WordWisp.Web.Models.Enums
+@{
+    ViewData["Title"] = Model.Material?.Title ?? "Материал";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/material-detail.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/student-material.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Material != null)
+    {
+        <!-- Заголовок материала -->
+        <div class="material-header student-header">
+            <div class="header-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/student/topics">Топики</a></li>
+                        <li class="breadcrumb-item"><a href="/student/topics/@Model.Material.TopicId">@Model.Material.TopicTitle</a></li>
+                        <li class="breadcrumb-item active">@Model.Material.Title</li>
+                    </ol>
+                </nav>
+                
+                <div class="title-section">
+                    <div class="material-type-badge student-badge" data-type="@Model.Material.MaterialType.ToString().ToLower()">
+                        @switch (Model.Material.MaterialType)
+                        {
+                            case MaterialType.Text:
+                                <i class="bi bi-file-text"></i>
+                                <span>Текст</span>
+                                break;
+                            case MaterialType.Image:
+                                <i class="bi bi-image"></i>
+                                <span>Изображение</span>
+                                break;
+                            case MaterialType.Audio:
+                                <i class="bi bi-music-note"></i>
+                                <span>Аудио</span>
+                                break;
+                            case MaterialType.Video:
+                                <i class="bi bi-play-circle"></i>
+                                <span>Видео</span>
+                                break;
+                        }
+                    </div>
+                    <h1>@Model.Material.Title</h1>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Material.Description))
+                {
+                    <p class="material-description">@Model.Material.Description</p>
+                }
+            </div>
+            
+            <div class="header-actions">
+                <a href="/student/topics/@Model.Material.TopicId" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> К топику
+                </a>
+            </div>
+        </div>
+
+        <!-- Прогресс изучения -->
+        <div class="progress-section">
+            <div class="progress-card">
+                <div class="progress-info">
+                    <span class="progress-label">Прогресс изучения:</span>
+                    <span class="progress-status">В процессе</span>
+                </div>
+                <div class="progress-actions">
+                    <button class="btn btn-success btn-sm" onclick="markAsCompleted()">
+                        <i class="bi bi-check-circle"></i> Отметить как изученное
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Содержимое материала (аналогично teacher версии, но без кнопок редактирования) -->
+        <div class="material-content student-content">
+            @switch (Model.Material.MaterialType)
+            {
+                case MaterialType.Text:
+                    <div class="text-content">
+                        <div class="content-wrapper">
+                            @if (!string.IsNullOrEmpty(Model.Material.Content))
+                            {
+                                <div class="text-body">
+                                    @Html.Raw(Model.Material.Content.Replace("\n", "<br>"))
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    break;
+
+                case MaterialType.Image:
+                    <div class="image-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.FilePath))
+                        {
+                            <div class="image-wrapper">
+                                <img src="@GetFileUrl(Model.Material.FilePath)" alt="@Model.Material.Title" class="material-image" />
+                            </div>
+                        }
+                    </div>
+                    break;
+
+                case MaterialType.Audio:
+                    <div class="audio-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.FilePath))
+                        {
+                            <div class="audio-wrapper">
+                                <audio controls class="material-audio">
+                                    <source src="@GetFileUrl(Model.Material.FilePath)" type="@Model.Material.MimeType">
+                                    Ваш браузер не поддерживает аудио элемент.
+                                </audio>
+                            </div>
+                        }
+                    </div>
+                    break;
+
+                case MaterialType.Video:
+                    <div class="video-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.ExternalUrl))
+                        {
+                            <div class="video-wrapper">
+                                <div id="videoPlayer" data-url="@Model.Material.ExternalUrl"></div>
+                            </div>
+                        }
+                    </div>
+                    break;
+            }
+        </div>
+
+        <!-- Навигация по материалам -->
+        <div class="material-navigation">
+            <div class="nav-actions">
+                <button class="btn btn-outline-secondary" onclick="previousMaterial()">
+                    <i class="bi bi-chevron-left"></i> Предыдущий материал
+                </button>
+                <button class="btn btn-outline-secondary" onclick="nextMaterial()">
+                    Следующий материал <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetFileUrl(string filePath)
+    {
+        var baseUrl = "http://localhost:5118";
+        return $"{baseUrl}/{filePath}";
+    }
+}
+
+@section Scripts {
+    <script src="~/js/video-player.js" asp-append-version="true"></script>
+    <script>
+        function markAsCompleted() {
+            // TODO: Реализовать отметку о завершении изучения
+            alert('Функция отметки о завершении будет реализована позже');
+        }
+
+        function previousMaterial() {
+            // TODO: Навигация к предыдущему материалу
+            alert('Навигация по материалам будет реализована позже');
+        }
+
+        function nextMaterial() {
+            // TODO: Навигация к следующему материалу
+            alert('Навигация по материалам будет реализована позже');
+        }
+    </script>
+}

@@ -1,0 +1,222 @@
+@page "/topics"
+@model TopicsIndexModel
+@{
+    ViewData["Title"] = "Публичные топики";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/topics.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/public-topics.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="bi bi-globe"></i> Публичные топики</h1>
+            <p class="text-muted">Изучайте материалы от преподавателей со всего мира</p>
+        </div>
+        @if (Model.IsAuthenticated && Model.UserRole == "Teacher")
+        {
+            <div class="header-actions">
+                <a href="/teacher/topics" class="btn btn-outline-primary">
+                    <i class="bi bi-mortarboard"></i> Мои топики
+                </a>
+                <a href="/teacher/topics/create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Создать топик
+                </a>
+            </div>
+        }
+        else if (!Model.IsAuthenticated)
+        {
+            <div class="header-actions">
+                <a href="/auth/login" class="btn btn-outline-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Войти
+                </a>
+                <a href="/auth/register" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i> Регистрация
+                </a>
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Поиск -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="input-group">
+                <input type="text" name="search" value="@Model.SearchQuery" class="form-control" placeholder="Поиск по названию или описанию..." />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Поиск
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.SearchQuery))
+            {
+                <a href="/topics" class="btn btn-outline-secondary btn-sm mt-2">
+                    <i class="bi bi-x"></i> Очистить поиск
+                </a>
+            }
+        </form>
+    </div>
+
+    <!-- Результаты -->
+    @if (Model.PagedTopics.Topics.Any())
+    {
+        <div class="topics-grid">
+            @foreach (var topic in Model.PagedTopics.Topics)
+            {
+                <div class="topic-card public-card">
+                    <div class="topic-header">
+                        <h3>@topic.Title</h3>
+                        <div class="topic-meta">
+                            <span class="author">
+                                <i class="bi bi-person"></i> @topic.CreatedByName
+                            </span>
+                            <span class="date">
+                                <i class="bi bi-calendar"></i> @topic.CreatedAt.ToString("dd.MM.yyyy")
+                            </span>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(topic.Description))
+                    {
+                        <div class="topic-description">
+                            @topic.Description
+                        </div>
+                    }
+                    
+                    <div class="topic-stats">
+                        <div class="stat">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>@topic.MaterialsCount материалов</span>
+                        </div>
+                        <div class="stat">
+                            <i class="bi bi-puzzle"></i>
+                            <span>@topic.ExercisesCount упражнений</span>
+                        </div>
+                    </div>
+                    
+                    <div class="topic-actions">
+                        @if (Model.IsAuthenticated)
+                        {
+                            <a href="/topics/@topic.Id" class="btn btn-primary">
+                                <i class="bi bi-eye"></i> Изучить
+                            </a>
+                            @if (Model.UserRole == "Teacher" && topic.CreatedBy == (Model.CurrentUserId ?? 0))
+                            {
+                                <a href="/teacher/topics/@topic.Id/edit" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Редактировать
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <a href="/auth/login?returnUrl=/topics/@topic.Id" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Войти для изучения
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Пагинация -->
+        @if (Model.PagedTopics.TotalPages > 1)
+        {
+            <nav class="pagination-nav">
+                <ul class="pagination">
+                    @if (Model.PagedTopics.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="?search=@Model.SearchQuery&page=@(Model.CurrentPage - 1)">
+                                <i class="bi bi-chevron-left"></i> Предыдущая
+                            </a>
+                        </li>
+                    }
+
+                    @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.PagedTopics.TotalPages, Model.CurrentPage + 2); i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="?search=@Model.SearchQuery&page=@i">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.PagedTopics.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="?search=@Model.SearchQuery&page=@(Model.CurrentPage + 1)">
+                                Следующая <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-globe"></i>
+            </div>
+            <h3>@(string.IsNullOrEmpty(Model.SearchQuery) ? "Нет доступных топиков" : "Ничего не найдено")</h3>
+            <p class="text-muted">
+                @if (string.IsNullOrEmpty(Model.SearchQuery))
+                {
+                    <text>Пока что нет публичных топиков для изучения</text>
+                }
+                else
+                {
+                    <text>Попробуйте изменить поисковый запрос</text>
+                }
+            </p>
+            <div class="empty-actions">
+                @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                {
+                    <a href="/topics" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Показать все топики
+                    </a>
+                }
+                else if (!Model.IsAuthenticated)
+                {
+                    <a href="/auth/register" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Зарегистрироваться
+                    </a>
+                }
+                else if (Model.UserRole == "Teacher")
+                {
+                    <a href="/teacher/topics/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Создать первый топик
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Информационная секция для незарегистрированных пользователей -->
+    @if (!Model.IsAuthenticated)
+    {
+        <div class="info-banner">
+            <div class="info-content">
+                <h4><i class="bi bi-lightbulb"></i> Получите больше возможностей</h4>
+                <p>Зарегистрируйтесь, чтобы изучать материалы, выполнять упражнения и отслеживать свой прогресс</p>
+                <div class="info-actions">
+                    <a href="/auth/register" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Регистрация
+                    </a>
+                    <a href="/auth/login" class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Уже есть аккаунт?
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

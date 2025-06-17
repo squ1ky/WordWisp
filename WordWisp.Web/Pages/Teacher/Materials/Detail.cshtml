@@ -1,0 +1,362 @@
+@page "/teacher/materials/{id:int}"
+@model TeacherMaterialDetailModel
+@using WordWisp.Web.Models.Enums
+@{
+    ViewData["Title"] = Model.Material?.Title ?? "Материал";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/material-detail.css" asp-append-version="true" />
+}
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (Model.Material != null)
+    {
+        <!-- Заголовок материала -->
+        <div class="material-header">
+            <div class="header-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/teacher/topics">Мои топики</a></li>
+                        <li class="breadcrumb-item"><a href="/teacher/topics/@Model.Material.TopicId">@Model.Material.TopicTitle</a></li>
+                        <li class="breadcrumb-item"><a href="/teacher/topics/@Model.Material.TopicId/materials">Материалы</a></li>
+                        <li class="breadcrumb-item active">@Model.Material.Title</li>
+                    </ol>
+                </nav>
+                
+                <div class="title-section">
+                    <div class="material-type-badge" data-type="@Model.Material.MaterialType.ToString().ToLower()">
+                        @switch (Model.Material.MaterialType)
+                        {
+                            case MaterialType.Text:
+                                <i class="bi bi-file-text"></i>
+                                <span>Текст</span>
+                                break;
+                            case MaterialType.Image:
+                                <i class="bi bi-image"></i>
+                                <span>Изображение</span>
+                                break;
+                            case MaterialType.Audio:
+                                <i class="bi bi-music-note"></i>
+                                <span>Аудио</span>
+                                break;
+                            case MaterialType.Video:
+                                <i class="bi bi-play-circle"></i>
+                                <span>Видео</span>
+                                break;
+                        }
+                    </div>
+                    <h1>@Model.Material.Title</h1>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Material.Description))
+                {
+                    <p class="material-description">@Model.Material.Description</p>
+                }
+                
+                <div class="material-meta">
+                    <span class="status">
+                        @if (Model.Material.IsPublic)
+                        {
+                            <i class="bi bi-globe text-success"></i>
+                            <span class="text-success">Публичный</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-lock text-secondary"></i>
+                            <span class="text-secondary">Приватный</span>
+                        }
+                    </span>
+                    <span class="order">Порядок: @Model.Material.Order</span>
+                    <span class="created">Создан: @Model.Material.CreatedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                    @if (Model.Material.UpdatedAt.HasValue)
+                    {
+                        <span class="updated">Обновлен: @Model.Material.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                    }
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/teacher/materials/@Model.Material.Id/edit" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/teacher/topics/@Model.Material.TopicId/materials">
+                            <i class="bi bi-arrow-left"></i> К списку материалов
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete(@Model.Material.Id, '@Model.Material.Title')">
+                            <i class="bi bi-trash"></i> Удалить материал
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Содержимое материала -->
+        <div class="material-content">
+            @switch (Model.Material.MaterialType)
+            {
+                case MaterialType.Text:
+                    <div class="text-content">
+                        <div class="content-wrapper">
+                            @if (!string.IsNullOrEmpty(Model.Material.Content))
+                            {
+                                <div class="text-body">
+                                    @Html.Raw(Model.Material.Content.Replace("\n", "<br>"))
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Содержимое не добавлено</p>
+                            }
+                        </div>
+                    </div>
+                    break;
+
+                case MaterialType.Image:
+                    <div class="image-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.FilePath))
+                        {
+                            <div class="image-wrapper">
+                                <img src="@GetFileUrl(Model.Material.FilePath)" alt="@Model.Material.Title" class="material-image" />
+                                <div class="image-info">
+                                    <span class="file-name">@Model.Material.OriginalFileName</span>
+                                    @if (Model.Material.FileSize.HasValue)
+                                    {
+                                        <span class="file-size">@FormatFileSize(Model.Material.FileSize.Value)</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Изображение не загружено</p>
+                        }
+                    </div>
+                    break;
+
+                case MaterialType.Audio:
+                    <div class="audio-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.FilePath))
+                        {
+                            <div class="audio-wrapper">
+                                <audio controls class="material-audio">
+                                    <source src="@GetFileUrl(Model.Material.FilePath)" type="@Model.Material.MimeType">
+                                    Ваш браузер не поддерживает аудио элемент.
+                                </audio>
+                                <div class="audio-info">
+                                    <span class="file-name">@Model.Material.OriginalFileName</span>
+                                    @if (Model.Material.FileSize.HasValue)
+                                    {
+                                        <span class="file-size">@FormatFileSize(Model.Material.FileSize.Value)</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Аудиофайл не загружен</p>
+                        }
+                    </div>
+                    break;
+
+                case MaterialType.Video:
+                    <div class="video-content">
+                        @if (!string.IsNullOrEmpty(Model.Material.ExternalUrl))
+                        {
+                            <div class="video-wrapper">
+                                <div id="videoPlayer" data-url="@Model.Material.ExternalUrl"></div>
+                                <div class="video-info">
+                                    <span class="video-url">@Model.Material.ExternalUrl</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Ссылка на видео не добавлена</p>
+                        }
+                    </div>
+                    break;
+            }
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="material-info-section">
+            <h3>Информация о материале</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Тип:</strong>
+                    <span>@GetMaterialTypeText(Model.Material.MaterialType)</span>
+                </div>
+                <div class="info-item">
+                    <strong>Статус:</strong>
+                    <span>@(Model.Material.IsPublic ? "Публичный" : "Приватный")</span>
+                </div>
+                <div class="info-item">
+                    <strong>Порядок:</strong>
+                    <span>@Model.Material.Order</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Material.MimeType))
+                {
+                    <div class="info-item">
+                        <strong>Тип файла:</strong>
+                        <span>@Model.Material.MimeType</span>
+                    </div>
+                }
+                @if (Model.Material.FileSize.HasValue)
+                {
+                    <div class="info-item">
+                        <strong>Размер файла:</strong>
+                        <span>@FormatFileSize(Model.Material.FileSize.Value)</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-3">Загрузка материала...</p>
+        </div>
+    }
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить материал <strong id="materialTitle"></strong>?</p>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Это действие нельзя отменить.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetMaterialTypeText(MaterialType type)
+    {
+        return type switch
+        {
+            MaterialType.Text => "Текстовый материал",
+            MaterialType.Image => "Изображение",
+            MaterialType.Audio => "Аудиофайл",
+            MaterialType.Video => "Видео",
+            _ => "Неизвестно"
+        };
+    }
+
+    string GetFileUrl(string filePath)
+    {
+        var baseUrl = "http://localhost:5118";
+        return $"{baseUrl}/{filePath}";
+    }
+
+    string FormatFileSize(long bytes)
+    {
+        if (bytes == 0) return "0 Bytes";
+        string[] sizes = { "Bytes", "KB", "MB", "GB" };
+        int i = (int)Math.Floor(Math.Log(bytes) / Math.Log(1024));
+        return Math.Round(bytes / Math.Pow(1024, i), 2) + " " + sizes[i];
+    }
+}
+
+@section Scripts {
+    <script src="~/js/video-player.js" asp-append-version="true"></script>
+    <script>
+        let materialIdToDelete = null;
+
+        function confirmDelete(materialId, materialTitle) {
+            materialIdToDelete = materialId;
+            document.getElementById('materialTitle').textContent = materialTitle;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!materialIdToDelete) return;
+
+            const token = '@Model.AuthToken';
+            if (!token) {
+                alert('Сессия истекла. Пожалуйста, войдите в систему заново.');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            try {
+                const apiBaseUrl = "http://localhost:5118";
+                const response = await fetch(`${apiBaseUrl}/api/materials/${materialIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    sessionStorage.setItem('successMessage', 'Материал успешно удален');
+                    window.location.href = '/teacher/topics/@Model.Material?.TopicId/materials';
+                } else if (response.status === 401) {
+                    alert('Сессия истекла. Пожалуйста, войдите в систему заново.');
+                    window.location.href = '/auth/login';
+                } else {
+                    let errorMessage = 'Ошибка при удалении материала';
+                    try {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    } catch (parseError) {
+                        console.warn('Could not parse error response:', parseError);
+                    }
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Не удалось подключиться к серверу');
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            modal.hide();
+        });
+    </script>
+}

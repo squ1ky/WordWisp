@@ -1,0 +1,279 @@
+@page "/teacher/topics/{topicId:int}/exercises/create"
+@model CreateExerciseModel
+@{
+    ViewData["Title"] = "Создание упражнения";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/exercises.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>
+                    <i class="bi bi-plus-circle"></i>
+                    Создание упражнения
+                </h1>
+                <p class="header-subtitle">
+                    Тема: <strong>@Model.Topic?.Title</strong>
+                </p>
+            </div>
+            <div class="header-actions">
+                <a href="/teacher/topics/@Model.Topic?.Id" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к теме
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    <form method="post" class="exercise-form" id="exerciseForm">
+        <div class="form-sections">
+            <!-- Основная информация -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3><i class="bi bi-info-circle"></i> Основная информация</h3>
+                </div>
+                <div class="section-content">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label asp-for="Input.Title" class="form-label">Название упражнения *</label>
+                                <input asp-for="Input.Title" class="form-control" placeholder="Введите название упражнения" />
+                                <span asp-validation-for="Input.Title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Input.ExerciseType" class="form-label">Тип упражнения *</label>
+                                <select asp-for="Input.ExerciseType" class="form-control">
+                                    <option value="">Выберите тип</option>
+                                    <option value="0">Множественный выбор</option>
+                                    <option value="1">Заполнить пропуски</option>
+                                    <option value="2">Верно/Неверно</option>
+                                    <option value="3">Сопоставление</option>
+                                    <option value="4">Эссе</option>
+                                </select>
+                                <span asp-validation-for="Input.ExerciseType" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input.Description" class="form-label">Описание</label>
+                        <textarea asp-for="Input.Description" class="form-control" rows="3" placeholder="Описание упражнения (необязательно)"></textarea>
+                        <span asp-validation-for="Input.Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Input.MaterialId" class="form-label">Материал (необязательно)</label>
+                                <select asp-for="Input.MaterialId" class="form-control">
+                                    <option value="">Не привязывать к материалу</option>
+                                    @foreach (var material in Model.Materials)
+                                    {
+                                        <option value="@material.Id">@material.Title</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Input.MaterialId" class="text-danger"></span>
+                                <small class="form-text text-muted">Упражнение можно создать без привязки к конкретному материалу</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Input.Order" class="form-label">Порядок отображения</label>
+                                <input asp-for="Input.Order" type="number" class="form-control" min="0" />
+                                <span asp-validation-for="Input.Order" class="text-danger"></span>
+                                <small class="form-text text-muted">Порядок отображения в списке упражнений</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input asp-for="Input.IsActive" type="checkbox" class="form-check-input me-2" />
+                            Активно (доступно студентам)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Настройки -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3><i class="bi bi-gear"></i> Настройки выполнения</h3>
+                </div>
+                <div class="section-content">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Input.TimeLimit" class="form-label">Время (минуты) *</label>
+                                <input asp-for="Input.TimeLimit" type="number" class="form-control" min="1" max="300" />
+                                <span asp-validation-for="Input.TimeLimit" class="text-danger"></span>
+                                <small class="form-text text-muted">Время на выполнение упражнения</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Input.MaxAttempts" class="form-label">Макс. попыток *</label>
+                                <input asp-for="Input.MaxAttempts" type="number" class="form-control" min="1" max="10" />
+                                <span asp-validation-for="Input.MaxAttempts" class="text-danger"></span>
+                                <small class="form-text text-muted">Количество попыток для студента</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Input.PassingScore" class="form-label">Проходной балл (%) *</label>
+                                <input asp-for="Input.PassingScore" type="number" class="form-control" min="0" max="100" />
+                                <span asp-validation-for="Input.PassingScore" class="text-danger"></span>
+                                <small class="form-text text-muted">Минимальный балл для сдачи</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вопросы -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3><i class="bi bi-question-circle"></i> Вопросы</h3>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addQuestion()">
+                        <i class="bi bi-plus"></i> Добавить вопрос
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div id="questionsContainer">
+                        @for (int i = 0; i < Model.Input.Questions.Count; i++)
+                        {
+                            <div class="question-card" data-question-index="@i">
+                                <div class="question-header">
+                                    <h4>Вопрос @(i + 1)</h4>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="question-content">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label class="form-label">Текст вопроса *</label>
+                                                <textarea asp-for="Input.Questions[i].Question" class="form-control" rows="2" placeholder="Введите текст вопроса"></textarea>
+                                                <span asp-validation-for="Input.Questions[i].Question" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Баллы *</label>
+                                                <input asp-for="Input.Questions[i].Points" type="number" class="form-control" min="1" max="100" />
+                                                <span asp-validation-for="Input.Questions[i].Points" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Порядок</label>
+                                                <input asp-for="Input.Questions[i].Order" type="number" class="form-control" min="0" />
+                                                <span asp-validation-for="Input.Questions[i].Order" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Поля для изображений и аудио -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Изображение (URL)</label>
+                                                <input asp-for="Input.Questions[i].QuestionImagePath" class="form-control" placeholder="Ссылка на изображение" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Аудио (URL)</label>
+                                                <input asp-for="Input.Questions[i].QuestionAudioPath" class="form-control" placeholder="Ссылка на аудио" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ответы -->
+                                    <div class="answers-section">
+                                        <div class="answers-header">
+                                            <label class="form-label">Варианты ответов</label>
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="addAnswer(this)">
+                                                <i class="bi bi-plus"></i> Добавить ответ
+                                            </button>
+                                        </div>
+                                        <div class="answers-container">
+                                            @for (int j = 0; j < Model.Input.Questions[i].Answers.Count; j++)
+                                            {
+                                                <div class="answer-item" data-answer-index="@j">
+                                                    <div class="answer-content">
+                                                        <div class="answer-checkbox">
+                                                            <input asp-for="Input.Questions[i].Answers[j].IsCorrect" type="checkbox" class="form-check-input" />
+                                                            <label class="form-check-label">Правильный</label>
+                                                        </div>
+                                                        <div class="answer-text">
+                                                            <input asp-for="Input.Questions[i].Answers[j].AnswerText" class="form-control" placeholder="Текст ответа" />
+                                                            <span asp-validation-for="Input.Questions[i].Answers[j].AnswerText" class="text-danger"></span>
+                                                        </div>
+                                                        <div class="answer-image">
+                                                            <input asp-for="Input.Questions[i].Answers[j].AnswerImagePath" class="form-control" placeholder="URL изображения" />
+                                                        </div>
+                                                        <div class="answer-order">
+                                                            <input asp-for="Input.Questions[i].Answers[j].Order" type="number" class="form-control" min="0" placeholder="Порядок" />
+                                                        </div>
+                                                        <div class="answer-actions">
+                                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeAnswer(this)">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    @if (!Model.Input.Questions.Any())
+                    {
+                        <div class="empty-questions">
+                            <i class="bi bi-question-circle"></i>
+                            <p>Добавьте вопросы для упражнения</p>
+                            <button type="button" class="btn btn-primary" onclick="addQuestion()">
+                                <i class="bi bi-plus"></i> Добавить первый вопрос
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Действия формы -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Создать упражнение
+            </button>
+            <a href="/teacher/topics/@Model.Topic?.Id" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Отмена
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/exercises.js" asp-append-version="true"></script>
+}

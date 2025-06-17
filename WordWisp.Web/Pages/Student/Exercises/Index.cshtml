@@ -1,0 +1,197 @@
+@page "/student/topics/{topicId:int}/exercises"
+@model StudentExercisesIndexModel
+@{
+    ViewData["Title"] = $"Упражнения - {Model.Topic?.Title}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/exercises.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/student-exercises.css" asp-append-version="true" />
+}
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>
+                    <i class="bi bi-puzzle"></i>
+                    Упражнения
+                </h1>
+                <p class="header-subtitle">
+                    Тема: <strong>@Model.Topic?.Title</strong>
+                </p>
+            </div>
+            <div class="header-actions">
+                <a href="/student/topics/@Model.Topic?.Id" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к теме
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Exercises.Any())
+    {
+        <div class="exercises-grid">
+            @foreach (var exercise in Model.Exercises)
+            {
+                var progress = Model.UserProgress.ContainsKey(exercise.Id) 
+                    ? (dynamic)Model.UserProgress[exercise.Id] 
+                    : new { BestScore = 0m, IsPassed = false, AttemptsUsed = 0 };
+                
+                <div class="student-exercise-card">
+                    <div class="exercise-header">
+                        <div class="exercise-title">
+                            <h3>@exercise.Title</h3>
+                            <div class="exercise-meta">
+                                <span class="exercise-type">
+                                    <i class="bi bi-gear"></i> @GetExerciseTypeText(exercise.ExerciseType)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="exercise-progress">
+                            @if (progress.IsPassed)
+                            {
+                                <span class="progress-badge passed">
+                                    <i class="bi bi-check-circle-fill"></i> Сдано
+                                </span>
+                            }
+                            else if (progress.AttemptsUsed > 0)
+                            {
+                                <span class="progress-badge attempted">
+                                    <i class="bi bi-clock-history"></i> В процессе
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="progress-badge not-started">
+                                    <i class="bi bi-circle"></i> Не начато
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(exercise.Description))
+                    {
+                        <div class="exercise-description">
+                            <p>@exercise.Description</p>
+                        </div>
+                    }
+
+                    <div class="exercise-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-question-circle"></i>
+                            <span>@exercise.Questions.Count вопросов</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-clock"></i>
+                            <span>@exercise.TimeLimit мин</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>@exercise.MaxAttempts попыток</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-trophy"></i>
+                            <span>@exercise.PassingScore% для сдачи</span>
+                        </div>
+                    </div>
+
+                    @if (progress.AttemptsUsed > 0)
+                    {
+                        <div class="progress-info">
+                            <div class="progress-stats">
+                                <div class="progress-stat">
+                                    <span class="stat-label">Лучший результат</span>
+                                    <span class="stat-value">@progress.BestScore.ToString("F1")%</span>
+                                </div>
+                                <div class="progress-stat">
+                                    <span class="stat-label">Попыток использовано</span>
+                                    <span class="stat-value">@progress.AttemptsUsed из @exercise.MaxAttempts</span>
+                                </div>
+                            </div>
+                            @if (progress.BestScore > 0)
+                            {
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: @(progress.BestScore)%"></div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="exercise-footer">
+                        <div class="exercise-actions">
+                            @if (progress.AttemptsUsed >= exercise.MaxAttempts)
+                            {
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="bi bi-x-circle"></i> Попытки исчерпаны
+                                </button>
+                                <a href="/student/exercises/@exercise.Id/results" class="btn btn-outline-primary">
+                                    <i class="bi bi-graph-up"></i> Результаты
+                                </a>
+                            }
+                            else if (progress.IsPassed)
+                            {
+                                <a href="/student/exercises/@exercise.Id/results" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Просмотр результатов
+                                </a>
+                                <a href="/student/exercises/@exercise.Id/take" class="btn btn-outline-primary">
+                                    <i class="bi bi-arrow-repeat"></i> Пройти еще раз
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/student/exercises/@exercise.Id/take" class="btn btn-primary">
+                                    <i class="bi bi-play-circle"></i> 
+                                    @(progress.AttemptsUsed > 0 ? "Продолжить" : "Начать")
+                                </a>
+                                @if (progress.AttemptsUsed > 0)
+                                {
+                                    <a href="/student/exercises/@exercise.Id/results" class="btn btn-outline-secondary">
+                                        <i class="bi bi-graph-up"></i> Результаты
+                                    </a>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-content">
+                <i class="bi bi-puzzle"></i>
+                <h3>Упражнений пока нет</h3>
+                <p>В этой теме еще не добавлены упражнения</p>
+                <a href="/student/topics/@Model.Topic?.Id" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Назад к теме
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetExerciseTypeText(WordWisp.Web.Models.Enums.ExerciseType type)
+    {
+        return type switch
+        {
+            WordWisp.Web.Models.Enums.ExerciseType.MultipleChoice => "Множественный выбор",
+            WordWisp.Web.Models.Enums.ExerciseType.FillInTheBlank => "Заполнить пропуски",
+            WordWisp.Web.Models.Enums.ExerciseType.TrueFalse => "Верно/Неверно",
+            WordWisp.Web.Models.Enums.ExerciseType.Matching => "Сопоставление",
+            WordWisp.Web.Models.Enums.ExerciseType.Essay => "Эссе",
+            _ => "Неизвестно"
+        };
+    }
+}
